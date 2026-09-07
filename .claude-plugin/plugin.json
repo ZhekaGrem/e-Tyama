@@ -1,0 +1,21 @@
+{
+  "name": "tyama",
+  "description": "Agent skills that teach you instead of answering for you - Feynman explanations, teach-back drills, recall quizzes, build-project challenges and mock interviews. AI as a multiplier, never a crutch.",
+  "version": "0.1.0",
+  "author": {
+    "name": "ZhekaGrem"
+  },
+  "homepage": "https://github.com/ZhekaGrem/e-Tyama",
+  "repository": "https://github.com/ZhekaGrem/e-Tyama",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "learning",
+    "teaching",
+    "tutoring",
+    "feynman",
+    "spaced-repetition",
+    "active-recall",
+    "interview-prep"
+  ]
+}

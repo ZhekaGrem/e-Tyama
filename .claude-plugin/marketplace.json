@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "tyama",
+  "owner": {
+    "name": "ZhekaGrem"
+  },
+  "metadata": {
+    "description": "Tyama - agent skills that teach you instead of answering for you. Feynman explanations, teach-back drills, recall quizzes, spaced-repetition cards, build-project challenges, mock interviews and learning retrospectives. Cross-domain: not only code, but also welding, soldering, household electrics, Excel, Word, cooking, video editing and public speaking."
+  },
+  "plugins": [
+    {
+      "name": "tyama",
+      "source": "./",
+      "description": "20 tutoring skills built on one rule: AI is a multiplier for what you already understand, never a crutch for what you do not. The skills refuse to hand you a finished answer on a topic you cannot yet explain in your own words - first you say it back, then you get help."
+    }
+  ]
+}

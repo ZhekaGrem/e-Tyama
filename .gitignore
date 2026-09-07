@@ -1,0 +1,26 @@
+# --- Learner profile: personal, never committed ---------------------------
+# The real profile lives outside the plugin (~/.claude/learner-profile.md or
+# ./.claude/learner-profile.md) so plugin updates cannot overwrite it.
+# Only the empty example ships with the repo.
+learner-profile.md
+**/learner-profile.md
+!templates/learner-profile.example.md
+
+# --- Generated learning material: personal, not code ----------------------
+# These patterns matter when someone uses a git repo as their study workspace.
+# Courses, logs and retros are the learner's own notes, not source.
+*_plan.md
+*_learn.md
+*_log.md
+retro/
+**/anki/
+!docs/*_plan.md
+
+# --- OS / editor ----------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.idea/
+.vscode/
