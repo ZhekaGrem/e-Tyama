@@ -1,6 +1,6 @@
 ---
 name: recall-quiz
-description: Use this skill whenever the user wants to test their understanding, drill recall, or quiz themselves on already-studied material in this ai-teacher project. Trigger on phrases like "потренуй мене", "перевір чи я зрозумів", "квіз", "опитай мене", "погоняй питаннями", "чи запам'ятав", "дай тест", "active recall", "повтори зі мною", or after the user finishes reading a `_learn.md` / `_plan.md` and asks "що далі". Conducts a Socratic 5-10 question quiz in Ukrainian, escalating from definitions → application → design, NEVER giving the answer first — only hints, then partial reveal, then full explanation. Logs failures for later review. If there's even a 1% chance the user wants to drill recall — use this skill.
+description: Use this skill whenever the user wants to test their understanding, drill recall, or quiz themselves on already-studied material in this ai-teacher project. Trigger on phrases like "потренуй мене", "перевір чи я зрозумів", "квіз", "опитай мене", "погоняй питаннями", "чи запам'ятав", "дай тест", "active recall", "повтори зі мною", or after the user finishes reading a `_learn.md` / `_plan.md` and asks "що далі". Also triggers on exam-prep phrases like "готуюсь до іспиту", "залік через тиждень", "екзаменаційні питання", "пробний тест". Conducts a Socratic 5-10 question quiz in Ukrainian, escalating from definitions → application → design, NEVER giving the answer first — only hints, then partial reveal, then full explanation. Has a separate exam mode: no hints during, cumulative coverage weighted toward past failures, all feedback at the end, harder on each repeat. Logs failures for later review. If there's even a 1% chance the user wants to drill recall — use this skill.
 ---
 
 # recall-quiz — активне пригадування методом Сократа
@@ -34,7 +34,9 @@ description: Use this skill whenever the user wants to test their understanding,
 1. **Що тренуємо?** (топік / файл / блок з `_plan.md`)
 2. **Скільки питань?** (за замовчуванням 7. Мінімум 5, максимум 10 — інакше втома)
 3. **Рівень:** базовий (визначення) / середній (застосування) / просунутий (дизайн / trade-offs) / змішаний?
-4. **Режим:** інтерв'ю-стиль (швидко, без жалю) / навчальний (м'якше, з підказками)?
+4. **Режим:** навчальний (м'якше, з підказками) / інтерв'ю-стиль (швидко, без жалю) /
+   **режим іспиту** (без підказок, накопичувально, розбір у кінці)?
+   Якщо учень назвав **дату** іспиту чи співбесіди — пропонуй режим іспиту сам.
 
 Якщо учень сказав "погоняй мене" і нічого більше — запитай 2-3 уточнення (мінімум що тренуємо).
 
@@ -152,6 +154,59 @@ description: Use this skill whenever the user wants to test their understanding,
 - Дату наступного повтору записуй завжди — інакше драбина не працює
 
 Якщо в учня є робочий Anki — віддай розклад йому і не дублюй.
+
+---
+
+## Режим іспиту — коли є дата й є що втрачати
+
+Сократичний режим вище **вчить**. Режим іспиту **міряє в умовах, схожих на
+реальні**. Різниця принципова: на іспиті ніхто не дає підказок.
+
+**Коли вмикати:** учень назвав дату — іспит, залік, сертифікація, співбесіда.
+Дати немає — **не вмикай**, сократичний режим корисніший для засвоєння.
+
+### Чим відрізняється
+
+| | Навчальний режим | Режим іспиту |
+|---|---|---|
+| Підказки під час | так, драбиною | **ні. Жодної** |
+| Фідбек | після кожного питання | **весь у кінці** |
+| Обсяг | свіжий блок | **накопичувально: усе, що вчив** |
+| Складність | під рівень | **на півкроку вище** |
+
+### Накопичувальність — головне
+
+Квіз тільки по свіжому блоку створює ілюзію: людина щойно читала, тому пам'ятає.
+На іспиті питають усе одразу й без попередження, який саме розділ.
+
+Склад питань:
+
+- **40%** — свіже
+- **40%** — попередні блоки за драбиною інтервалів (правило F канону)
+- **20%** — те, що учень **уже провалював** (з `quiz_log.md`)
+
+Останні 20% обов'язкові. Провалене й не повернене провалиться і на іспиті.
+
+### Розбір — тільки помилки, зате глибоко
+
+Після тесту не переказуй усе. Візьми **лише провалені** і на кожне:
+
+1. Де саме зламалась думка (правило H канону)
+2. Чому правильна відповідь правильна — **механізм**, не факт
+3. **Де це в матеріалі** — конкретний блок, щоб учень перечитав
+4. Прохання переказати виправлення своїми словами
+
+Правильні відповіді — одним рядком «це тримаєш», без розбору. Час іде на діри.
+
+### Ескалація
+
+Пройшов — наступний раунд **складніший**, а не той самий:
+
+- більше Analyze/Design, менше Remember
+- питання, що **зшивають два блоки**: «як X впливає на Y?»
+- каверзні формулювання, як на реальному іспиті
+
+Той самий квіз двічі міряє пам'ять про квіз, а не про тему.
 
 ---
 
