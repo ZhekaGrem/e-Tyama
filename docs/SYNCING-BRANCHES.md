@@ -45,7 +45,7 @@ git merge main -- .claude-plugin .gitignore LICENSE
 
 ## Як переносити зміну скіла
 
-Припустимо, ти правиш `welding-coach` на `ua`.
+Припустимо, ти правиш `electrics-coach` на `ua`.
 
 1. **Зроби зміну на одній гілці, доведи до кінця.** Не редагуй обидві паралельно.
 2. **Занотуй, що саме змінилось** — не diff, а сенс: «додав таблицю струмів для 5 мм
@@ -76,8 +76,8 @@ git checkout main    # переносиш сюди переказом, не ме
 і заголовків має збігатися:
 
 ```bash
-git show ua:skills/welding-coach/SKILL.md   | grep -c '^#'
-git show main:skills/welding-coach/SKILL.md | grep -c '^#'
+git show ua:skills/electrics-coach/SKILL.md   | grep -c '^#'
+git show main:skills/electrics-coach/SKILL.md | grep -c '^#'
 ```
 
 Числа різні — гілки розійшлись структурно, а не лише мовою. Це і є сигнал.

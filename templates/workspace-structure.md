@@ -30,8 +30,7 @@
 ├── system-design/                # задачі + drill_log.md (system-design-drill)
 ├── algoritm/                     # задачі, stats.md (leetcode-coach)
 ├── common-mistakes/              # типові помилки: джерело trap-питань
-├── life-skills/                  # cooking/ welding/ soldering/ electrics/ video-editing/
-├── presentations/<тема>/         # presentation-coach
+├── life-skills/                  # побутові навички: electrics/ та твої власні коучі
 └── retro/                        # learning-retro: HTML + PDF звіти, retro_log.md
 ```
 

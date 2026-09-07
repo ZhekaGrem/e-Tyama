@@ -78,19 +78,17 @@ description: Use this skill whenever the user wants to learn, understand, prepar
 
 | Про що запит | Хто веде |
 |---|---|
-| Зварювання, зварка, електрод, MMA/MIG/TIG | `welding-coach` |
-| Пайка, паяльник, припій, SMD, ремонт плати | `soldering-coach` |
 | Розетки, автомати, ПЗВ, проводка | `electrics-coach` |
-| Готування, рецепти, техніки кухні | `cooking-coach` |
-| Excel, таблиці, формули, Power Query | `excel-coach` |
-| Word, стилі, автозміст, mail merge | `word-coach` |
-| Монтаж відео, кольорокор, експорт | `video-editing-coach` |
-| Презентація, слайди, виступ | `presentation-coach` |
-| Алгоритмічна задача, LeetCode | `leetcode-coach` |
 | Стек-трейс, незрозуміла помилка | `error-decoder` |
 | Мок-інтерв'ю по стеку | `interview-mock` |
 | System design раунд | `system-design-drill` |
+| Алгоритмічна задача, LeetCode | `leetcode-coach` |
 | **Будь-яка інша тема** | **цей скіл** |
+
+У комплекті саме **один** доменний коуч — `electrics-coach`, як зразок. Це не недоробка:
+готових каталогів тем свідомо немає, бо навчання будується під конкретну людину, а не за чужою програмою.
+Якщо учень додав своїх коучів — вони мають такий самий пріоритет над тобою в своєму домені.
+Як такого написати — `docs/WRITING-YOUR-OWN-COACH.md`.
 
 Правило одним рядком: **є доменний коуч — йди в нього; немає — працюєш ти.**
 
