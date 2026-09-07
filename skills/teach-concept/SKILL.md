@@ -83,6 +83,7 @@ description: Use this skill whenever the user wants to learn, understand, prepar
 | Мок-інтерв'ю по стеку | `interview-mock` |
 | System design раунд | `system-design-drill` |
 | Алгоритмічна задача, LeetCode | `leetcode-coach` |
+| NotebookLM, Gemini Notebook, Jupyter + AI, робота з власними джерелами | `llm-notebook` |
 | **Будь-яка інша тема** | **цей скіл** |
 
 У комплекті саме **один** доменний коуч — `electrics-coach`, як зразок. Це не недоробка:
