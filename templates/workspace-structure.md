@@ -99,9 +99,33 @@ Tyama/
 retro/
 **/anki/
 
+# чернетки: помилки, ідеї, проби
+errors/
+**/errors/
+mistakes/
+**/mistakes/
+ideas/
+**/ideas/
+drafts/
+**/drafts/
+scratch/
+**/scratch/
+sandbox/
+**/sandbox/
+experiments/
+**/experiments/
+playground/
+**/playground/
+tmp/
+**/tmp/
+
 # профіль — тим паче
 .claude/learner-profile.md
 ```
+
+Про чернетки окремо: `errors/`, `ideas/`, `drafts/`, `scratch/` — це напівготове й часто
+просто неправильне. Воно потрібне **тобі в роботі**, а не тому, хто відкриє репозиторій.
+Логи помилок до того ж записують рівно те, де в тебе слабко.
 
 Скіли нагадають про це один раз і **не редагуватимуть твій `.gitignore` самі**.
 

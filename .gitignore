@@ -16,6 +16,32 @@ retro/
 **/anki/
 !docs/*_plan.md
 
+# --- Where mistakes, ideas and tries pile up ------------------------------
+# Scratch by definition: half-formed, often wrong, sometimes embarrassing.
+# It is working material for one person, not something anyone should review,
+# and error logs in particular record exactly where that person is weak.
+errors/
+**/errors/
+mistakes/
+**/mistakes/
+ideas/
+**/ideas/
+drafts/
+**/drafts/
+scratch/
+**/scratch/
+sandbox/
+**/sandbox/
+experiments/
+**/experiments/
+playground/
+**/playground/
+tmp/
+**/tmp/
+*.scratch.*
+*.draft.*
+*.tmp
+
 # --- OS / editor ----------------------------------------------------------
 .DS_Store
 Thumbs.db

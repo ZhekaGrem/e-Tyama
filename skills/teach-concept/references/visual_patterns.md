@@ -253,6 +253,26 @@
 *_log.md
 retro/
 **/anki/
+
+# чернетки: помилки, ідеї, проби
+errors/
+**/errors/
+mistakes/
+**/mistakes/
+ideas/
+**/ideas/
+drafts/
+**/drafts/
+scratch/
+**/scratch/
+sandbox/
+**/sandbox/
+experiments/
+**/experiments/
+playground/
+**/playground/
+tmp/
+**/tmp/
 ```
 
 Якщо `.gitignore` немає або цих рядків у ньому немає — **скажи учню один раз** і запропонуй
