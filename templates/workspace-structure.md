@@ -30,6 +30,8 @@
 ├── system-design/                # задачі + drill_log.md (system-design-drill)
 ├── algoritm/                     # задачі, stats.md (leetcode-coach)
 ├── common-mistakes/              # типові помилки: джерело trap-питань
+├── docs/
+│   └── course-audit-queue.md     # опційно: черга курсів на аудит (course-audit)
 ├── life-skills/                  # побутові навички: electrics/ та твої власні коучі
 └── retro/                        # learning-retro: HTML + PDF звіти, retro_log.md
 ```

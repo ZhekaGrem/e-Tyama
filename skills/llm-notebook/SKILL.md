@@ -381,7 +381,7 @@ vs crutch), F (інтервали 1/3/7/21) і H (фідбек із трьох �
 | [Learning Guide in NotebookLM](https://workspaceupdates.googleblog.com/2025/09/learning-guide-notebook-lm-workspace-education.html) | Google Workspace Updates | навідні питання замість відповідей, покроковий розбір |
 | [NotebookLM Help — джерела й ліміти](https://support.google.com/notebooklm/answer/16215270?hl=en) | офіційна довідка | ліміти джерел і розміру, автокатегоризація від 5 джерел, типи файлів |
 | [NotebookLM: the study tool for students who care about learning](https://www.digital.pitt.edu/news/pantherbytes-blog/notebooklm-study-tool-students-who-care-about-learning) | University of Pittsburgh, підрозділ Pitt Digital | найважливіше: спершу власна робота з матеріалом; ризик хибної впевненості від «гладких» оглядів; межа академічної чесності |
-| [Ten Simple Rules for Reproducible Research in Jupyter Notebooks](https://arxiv.org/pdf/1810.08055) | академічна праця, arXiv | правила відтворюваності ноутбуків |
+| [Ten Simple Rules for Reproducible Research in Jupyter Notebooks](https://arxiv.org/abs/1810.08055) | Rule, Birmingham, Pérez та ін. — серед авторів створювач Jupyter | правила відтворюваності ноутбуків |
 | [Best Practices for Jupyter Notebook](https://carpenter-singh-lab.broadinstitute.org/blog/best-practices-jupyter-notebook) | лабораторія Carpenter–Singh, Broad Institute | `Restart kernel + Run All` перед тим, як довіряти; функції в модуль, а не в клітинку |
 
 **Ліміти й назви фіч перевіряй у довідці перед тим, як на них покладатись** — вони

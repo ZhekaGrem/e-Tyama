@@ -1,6 +1,6 @@
 ---
 name: course-audit
-description: Use this skill whenever the user wants to audit, refresh, deepen, or fix an EXISTING course/guide/learning artifact in this ai-teacher project. Trigger on phrases like "проаудитуй курс", "чого бракує в курсі", "перевір курс на повноту", "онови курс", "освіжи курс", "залатай курс", "курс неповний", "чому курс не пояснив X", or when learning-retro category 7 ("Прогалина контенту курсу") fires, or when working through docs/course-audit-queue.md. Audits any format (_plan.md/_learn.md, guide.html, scattered md) against the 5 expert lenses (skills/_shared/expert-standards.md), builds an expert-verified domain map via WebSearch, reports gaps with priorities, and patches files in their native format after user approval. NOT for creating new courses (use teach-concept), not for recall/quizzes (recall-quiz), not for mistakes retrospective (learning-retro).
+description: Use this skill whenever the user wants to audit, refresh, deepen, or fix an EXISTING course/guide/learning artifact in this ai-teacher project. Trigger on phrases like "проаудитуй курс", "чого бракує в курсі", "перевір курс на повноту", "онови курс", "освіжи курс", "залатай курс", "курс неповний", "чому курс не пояснив X", or when learning-retro category 7 ("Прогалина контенту курсу") fires, or when working through an optional course-audit queue file in the learner's own docs folder. Audits any format (_plan.md/_learn.md, guide.html, scattered md) against the 5 expert lenses (skills/_shared/expert-standards.md), builds an expert-verified domain map via WebSearch, reports gaps with priorities, and patches files in their native format after user approval. NOT for creating new courses (use teach-concept), not for recall/quizzes (recall-quiz), not for mistakes retrospective (learning-retro).
 ---
 
 # course-audit — лікар для існуючих курсів
@@ -74,7 +74,7 @@ description: Use this skill whenever the user wants to audit, refresh, deepen, o
    **Відкладено:** <що лишили зі статусом 🔜 і чому>
    **Джерела еталона:** <список з «хто це»>
    ```
-7. **PDF.** Якщо поруч із виправленим HTML лежить його PDF-версія — перегенеруй PDF (Chrome headless; команда і нюанси — `.claude/skills/learning-retro/references/pdf_generation.md`).
+7. **PDF.** Якщо поруч із виправленим HTML лежить його PDF-версія — перегенеруй PDF (Chrome headless; команда і нюанси — `skills/learning-retro/references/pdf_generation.md`).
 
 ## Verification
 
@@ -100,7 +100,7 @@ description: Use this skill whenever the user wants to audit, refresh, deepen, o
 
 ## Інтеграції
 
-- **Читає:** `skills/_shared/expert-standards.md` (канон), файли курсу, `docs/course-audit-queue.md` (черга ретрофіту, якщо існує)
-- **Пише:** патчі файлів курсу, `<курс>/audit_log.md`, оновлює рядок курсу в `docs/course-audit-queue.md` (статус «пролікований + дата»)
+- **Читає:** `skills/_shared/expert-standards.md` (канон), файли курсу, `<робоча тека>/docs/course-audit-queue.md` — черга курсів на аудит, **опційна**. Немає — працюй без неї, не створюй сам
+- **Пише:** патчі файлів курсу, `<курс>/audit_log.md`, оновлює рядок курсу в `<робоча тека>/docs/course-audit-queue.md`, якщо вона є (статус «пролікований + дата»)
 - **Викликається з:** learning-retro (категорія 7 «Прогалина контенту курсу»), прямих запитів учня, проходження черги
 - **Кличе:** teach-concept (якщо діра завелика — простіше згенерувати новий блок курсу за його шаблонами), anki-cards (запропонуй оновити колоду, якщо курс мав anki/)
