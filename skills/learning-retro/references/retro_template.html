@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Ретроспектива навчання — {{TOPIC}} — {{DATE}}</title>
+<style>
+  /* Самодостатній стиль. Жодних зовнішніх ресурсів — працює офлайн і друкується детерміновано. */
+  :root {
+    --ink: #1a1a1a;
+    --muted: #5b6470;
+    --line: #d7dce3;
+    --bg-soft: #f4f6f9;
+    --red: #c0392b;
+    --amber: #b9770e;
+    --green: #1e7d4f;
+    --blue: #1f5fa8;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", "Arial", system-ui, sans-serif;
+    color: var(--ink);
+    font-size: 12pt;
+    line-height: 1.45;
+  }
+  body { padding: 28px 32px; }
+  h1 { font-size: 20pt; margin: 0 0 2px; }
+  h2 { font-size: 14pt; margin: 22px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--line); }
+  .sub { color: var(--muted); font-size: 11pt; margin: 0 0 4px; }
+  .verdict {
+    display: inline-block; margin-top: 6px; padding: 4px 12px; border-radius: 6px;
+    background: var(--bg-soft); border: 1px solid var(--line); font-weight: 600;
+  }
+
+  /* --- Оглядова схема: Помилки -> Причини -> Наступні кроки --- */
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 14px 0 6px; }
+  .flow-col {
+    flex: 1; background: var(--bg-soft); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px; min-width: 0;
+  }
+  .flow-col h3 { margin: 0 0 8px; font-size: 11pt; text-transform: uppercase; letter-spacing: .04em; }
+  .flow-col.errors h3 { color: var(--red); }
+  .flow-col.causes h3 { color: var(--amber); }
+  .flow-col.next h3 { color: var(--green); }
+  .flow-col ul { margin: 0; padding-left: 16px; }
+  .flow-col li { margin: 3px 0; font-size: 10.5pt; }
+  .flow-arrow {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22pt; color: var(--muted); padding: 0 8px; font-weight: 700;
+  }
+
+  /* --- Таблиця розбору --- */
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 4px; font-size: 10.5pt; }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--bg-soft); font-weight: 600; }
+  td.cause { white-space: nowrap; }
+  .tag {
+    display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 9pt; font-weight: 600;
+  }
+  .tag.term   { background: #fdeaea; color: var(--red); }
+  .tag.memory { background: #fff3e0; color: var(--amber); }
+  .tag.abstr  { background: #eaf0fb; color: var(--blue); }
+  .tag.attn   { background: #f0f0f0; color: #555; }
+  .tag.gap    { background: #fbeaea; color: #8e2424; }
+  .tag.crutch { background: #efe7fb; color: #6a3bbf; }
+  .tag.course { background: #eaf5ee; color: var(--green); } /* Прогалина контенту курсу */
+
+  /* --- Списки дір / сильних сторін / плану --- */
+  .gaps li { margin: 5px 0; }
+  .repeat { color: var(--red); font-weight: 600; }
+  .new { color: var(--muted); }
+  .strengths { background: #eef8f1; border: 1px solid #cfe8d8; border-radius: 8px; padding: 8px 14px; }
+  .plan li { margin: 5px 0; }
+  .when { color: var(--blue); font-weight: 600; }
+
+  footer { margin-top: 26px; color: var(--muted); font-size: 9pt; border-top: 1px solid var(--line); padding-top: 6px; }
+
+  @page { size: A4; margin: 14mm; }
+  @media print {
+    body { padding: 0; }
+    h2 { break-after: avoid; }
+    table, .flow { break-inside: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+  <h1>Ретроспектива навчання</h1>
+  <p class="sub">{{TOPIC}} · {{DATE}}</p>
+  <div class="verdict">{{VERDICT}}</div>
+
+  <h2>Схема сесії</h2>
+  <div class="flow">
+    <div class="flow-col errors">
+      <h3>Помилки</h3>
+      <ul>{{FLOW_ERRORS}}</ul>
+    </div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-col causes">
+      <h3>Корінні причини</h3>
+      <ul>{{FLOW_CAUSES}}</ul>
+    </div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-col next">
+      <h3>Наступні кроки</h3>
+      <ul>{{FLOW_NEXT}}</ul>
+    </div>
+  </div>
+
+  <h2>Розбір по помилках</h2>
+  <table>
+    <thead>
+      <tr><th style="width:4%">#</th><th style="width:34%">Що сталося</th><th style="width:20%">Корінна причина</th><th style="width:42%">Що робити далі</th></tr>
+    </thead>
+    <tbody>
+      {{TABLE_ROWS}}
+    </tbody>
+  </table>
+
+  <h2>3 найбільші діри</h2>
+  <ol class="gaps">
+    {{TOP_GAPS}}
+  </ol>
+
+  <h2>Сильні сторони</h2>
+  <div class="strengths">
+    <ul>{{STRENGTHS}}</ul>
+  </div>
+
+  <h2>План дій</h2>
+  <ul class="plan">
+    {{ACTION_PLAN}}
+  </ul>
+
+  <footer>Згенеровано скілом <strong>learning-retro</strong> · ai-teacher · {{DATE}}</footer>
+
+</body>
+</html>
