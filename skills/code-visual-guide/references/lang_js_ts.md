@@ -134,13 +134,14 @@ reading: «відкладено в чергу; виконається після
 
 | | CommonJS `require` | ESM `import` |
 |---|---|---|
-| Коли зв'язується | під час виконання, на рядку `require` | `import` дозволений лише в ES-модулях, окремо від `require()` |
-| Кеш | так, другий `require` того ж файлу віддає той самий об'єкт | так, ES-модулі мають власний кеш, окремий від `require.cache` |
-| order у гайді | звичайний крок ①… | окремий крок імпорту модуля |
+| Коли зв'язується | під час виконання, на рядку `require` | до виконання модуля, статично |
+| Кеш | так, другий `require` того ж файлу віддає той самий об'єкт | так, модуль виконується один раз |
+| Hoisting | ні, звичайний виклик | так, усі `import` піднято на початок |
+| order у гайді | звичайний крок ①… | завжди перед першим виразом модуля |
 
-reading для `import`: «ESM має власний кеш модулів, не той самий, що в require». Для
-`require`: «виконується тут, синхронно; результат кешується».
-Джерело: Node.js docs, Modules: CommonJS; Modules: ECMAScript modules.
+reading для `import`: «ESM: зв'язується до виконання модуля». Для `require`: «виконується
+тут, синхронно; результат кешується».
+Джерело: MDN, import (мовне правило: hoisting, static, live bindings); Node.js docs, Modules: CommonJS; Modules: ECMAScript modules (рантайм: require синхронний і кешується, ESM має власний кеш).
 
 ## 3. Список цукру
 
@@ -191,5 +192,6 @@ reading для `import`: «ESM має власний кеш модулів, не
 | [MDN — Optional chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining) | Mozilla | §3 |
 | [MDN — Event loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop) | Mozilla | §2.8 |
 | [Node.js — Event loop, timers, nextTick](https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick) | офіційна документація Node.js | §2.8 |
+| [MDN — import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) | Mozilla | §2.9, §3 |
 | [Node.js — Modules: CommonJS](https://nodejs.org/api/modules.html) | офіційна документація Node.js | §2.9 |
 | [Node.js — Modules: ECMAScript](https://nodejs.org/api/esm.html) | офіційна документація Node.js | §2.9 |
