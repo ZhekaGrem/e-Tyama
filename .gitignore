@@ -50,3 +50,10 @@ desktop.ini
 *~
 .idea/
 .vscode/
+
+# --- Working folders of the owner's tooling -------------------------------
+# Plugin manifest, planning documents and the SDD scratch space. Files already
+# tracked before this rule stay tracked; git ignores only new, untracked ones.
+.claude-plugin/
+docs/
+.superpowers/
