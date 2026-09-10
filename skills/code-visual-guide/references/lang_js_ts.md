@@ -108,12 +108,13 @@ items.reduce((sum, i) => sum + i.price, 0);
 ### 2.7 `this` у стрілці — з оточення, не з виклику
 
 ```js
-const obj = { n: 1, f: () => this.n, g() { return this.n; } };
-obj.f();  // undefined (this з модуля)
-obj.g();  // 1
+const obj = { n: 1, f: () => this, g() { return this.n; } };
+obj.f();  // undefined в ESM (у звичайному <script> — window): this взято з місця визначення
+obj.g();  // 1 — звичайний метод бере this з виклику obj.g()
 ```
 
-reading для стрілки-методу: «this береться з місця визначення, не з obj».
+reading для стрілки-методу: «this береться з місця визначення (модуль), не з obj; у
+стрілці-методі this ніколи не буде obj».
 Джерело: MDN, Arrow function expressions.
 
 ### 2.8 Event loop — синхронне спершу, callback-и потім
