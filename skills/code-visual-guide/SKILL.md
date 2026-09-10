@@ -127,7 +127,7 @@ Callout-и L1:
 ```
 
 <constraint> учень не назвав файли, одна мова → рівно #1 entry, #2 max_sugar, #3 max_trap </constraint>
-<constraint> кілька мов → по одному фрагменту на мову, максимум 5 загалом </constraint>
+<constraint> depth 2 → рівно 3 фрагменти незалежно від кількості мов (entry з головної мови, max_sugar і max_trap по всьому репо); depth 3 → до 5, і щонайменше по одному на мову </constraint>
 <constraint> фрагмент = 5–10 рядків; довша функція → ключові рядки + «…» у full_code </constraint>
 <constraint> вбудований запит (SQL у рядку, aggregate([...])) → фрагмент за lang_sql / lang_mongo, не за мовою-обгорткою </constraint>
 
