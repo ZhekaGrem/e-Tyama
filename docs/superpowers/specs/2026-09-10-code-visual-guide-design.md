@@ -22,8 +22,33 @@
 | L2 Файл / функція | класи, функції, експорти, імпорти | структура коду |
 | L3 Вираз | літерали, оператори, hoisting, коерція | навчання «як читає мова» |
 
-**Дефолт — L1 + L2.** L3 — тільки для 3–5 показових фрагментів (вибір за правилом
-у §5, крок 3, або файли, які назвав учень). Інакше каша.
+L3 — тільки для 3–5 показових фрагментів (вибір за правилом у §5, крок 3, або файли,
+які назвав учень). Інакше каша. Параметр `depth`:
+
+| depth | L1 | L2 | L3 |
+|---|---|---|---|
+| 1 | так | тільки експорти | немає |
+| **2 (дефолт)** | так | ≤12 файлів, публічні + приватні функції | **3 фрагменти**: entry, max_sugar, max_trap |
+| 3 | так | те саме | **до 5**: + файли учня; кілька мов — по 1 на мову |
+
+L3 є в дефолті, бо це навчальна частина; `depth=1` — швидкий огляд «що це за репо».
+
+### Тригер
+
+**Вмикається** на явний запит візуального / блочного розбору репо або файлу: «зроби
+візуальний гайд», «поясни проєкт блоками», «намалюй структуру коду», «як читає ця мова
+цей код», «покажи схемою, що куди йде», «code visual guide».
+
+**Не вмикається:** питання про один механізм («як тут працює X» → звичайна відповідь або
+`teach-concept`), стек-трейс (`error-decoder`), концепція без репо (`teach-concept`),
+дизайн нового (`system-design-drill`). Сіра зона «поясни цей файл» без слова
+«візуально/блоками» — скіл не бере; звичайна відповідь закінчується одним рядком
+«хочеш — зроблю візуальний гайд по цьому файлу».
+
+### Мови
+
+`js_ts` (+ Node.js як рантайм), `python`, `go`, `java`, `sql`, `mongo`. БД — п'ята й
+шоста «мова» з тією ж структурою довідника (§9).
 
 ## 3. Чотири категорії елементів
 
@@ -58,13 +83,23 @@ skills/code-visual-guide/
     ├── lang_python.md
     ├── lang_go.md
     ├── lang_java.md
+    ├── lang_sql.md               логічний порядок виконання запиту, CTE, індекси як STRUCTURE
+    ├── lang_mongo.md             пайплайн агрегації, Mongoose-хелпери як цукор
     ├── guide_template.html       самодостатній HTML, легенда, L1/L2 Mermaid, L3 SVG
+    ├── render_guide.py           Python 3 stdlib: json-блок із .md → HTML за шаблоном
+    ├── test_render_guide.py      unittest на рендерер, запускається однією командою
     └── worked_example.md         повний прохід на одному файлі: JSON → Mermaid → L3
 ```
 
 Агент читає SKILL.md завжди; `lang_<x>.md` — лише для мов, знайдених у репо;
-`guide_template.html` — на кроці рендеру. Правила стоять поруч із кроком, який їх
-використовує, а не в окремому блоці на початку.
+`guide_template.html` і рендерер — на кроці рендеру. Правила стоять поруч із кроком,
+який їх використовує, а не в окремому блоці на початку.
+
+**Рендер HTML:** `python3 render_guide.py <code_guide.md> <out.html>`. Дані бере з
+` ```json `-блоку в `.md`, форми й кольори — з однієї таблиці всередині рендерера
+(§3), SVG-стрічки L3 малює сам. Fallback: `python3`/`python` не знайдено → модель
+заповнює `guide_template.html` сама, секціями (каркас + L1, потім кожен L2-файл окремим
+редагуванням, потім L3).
 
 Формат SKILL.md: markdown-заголовки для навігації + тегові блоки всередині
 (`<decision_tree>`, `<boundaries>`, `<output_schema>`, `<constraint>` у кожному кроці).
@@ -73,7 +108,8 @@ skills/code-visual-guide/
 
 ```
 Крок 0 — Вхід
-├─ Профіль learner-profile.md: мова відповіді (дефолт українська), редактор
+├─ Профіль learner-profile.md: мова відповіді (дефолт українська), редактор, сховище
+├─ Сховище порожнє → одне питання за правилом D ДО генерації, не після
 ├─ project_path задано? ─ ні → взяти cwd, сказати учню який
 ├─ Учень назвав файл(и)? ─ так → вони йдуть у L3 обов'язково
 └─ depth: 1 | 2 (дефолт) | 3
@@ -84,7 +120,9 @@ skills/code-visual-guide/
 
 Крок 1 — Детект мов і L1
 ├─ Маркери: package.json / tsconfig.json → js_ts · go.mod → go · pom.xml / build.gradle
-│  → java · pyproject.toml / requirements.txt / setup.py → python
+│  → java · pyproject.toml / requirements.txt / setup.py → python ·
+│  *.sql / migrations/ / schema.prisma → sql · mongoose.Schema / db.collection( /
+│  aggregate([ / *.mongodb → mongo
 ├─ Кілька мов → окремий L1-блок на кожну; спільний граф не малювати
 ├─ Граф імпортів: grep по import / from / require / `import (` → пари file→file,
 │  тільки всередині репо (зовнішні пакети — не вузли)
@@ -93,9 +131,15 @@ skills/code-visual-guide/
 │  <constraint> тека з >10 файлами → показати тільки її експорти, не всі файли </constraint>
 ├─ Callout: A→B→A → 🔴 цикл, обидва файли поруч на L2; файл без вхідних ребер і не
 │  entry → ⚠️ «сирота»
-└─ Мова не з чотирьох → тільки file tree + 1 речення на файл, без L2/L3
+└─ Мова не з шести → тільки file tree + 1 речення на файл, без L2/L3
 
-Крок 2 — L2 для кожного файлу з L1
+Крок 2 — L2 для відібраних файлів
+├─ Відбір, у порядку: (1) файли, які назвав учень; (2) entry point; (3) файли з
+│  найбільшим ступенем у графі імпортів (вхідні + вихідні); (4) файли з callout-ів
+│  <constraint> L2 максимум 12 файлів. Розширення лише двома випадками: файл із 🔴 циклу
+│    (обидва кінці мають бути поруч) і файл, який назвав учень. Стеля — 16; вище →
+│    «назви, що прибрати». Кожне перевищення — один рядок пояснення в гайді </constraint>
+│  <constraint> у гайді рядок «L2 показано для N з M файлів: <критерії>; назви файл — додам» </constraint>
 ├─ Прочитати lang_<x>.md → §1 «Маркери»
 ├─ Виписати: імпорти, експорти, класи, interface/type, функції/методи → елементи за схемою
 │  <constraint> type ∈ {data, operation, syntax_sugar, structure} — нічого іншого </constraint>
@@ -114,19 +158,41 @@ skills/code-visual-guide/
 
 Крок 4 — L3 для кожного фрагмента
 ├─ Дерево типів (§6)
-├─ order = порядок, у якому МОВА читає, за lang_<x>.md §2
+├─ Що є елементом: те, що має власний крок в order АБО змінює, як мова читає сусідів —
+│  оголошення, виклик, оператор із коерцією/пріоритетом, що дивує (`+` зі строкою — так,
+│  `.` доступ до поля — ні), умова, цикл, кожна конструкція цукру
+│  <constraint> літерал — елемент лише коли на ньому щось ламається (`0` як seed у reduce —
+│    так; `1` у `1 + TAX_RATE` — ні, іде в reading оператора) </constraint>
+│  <constraint> типи-анотації → один елемент STRUCTURE на сигнатуру, не на кожен тип </constraint>
+│  <constraint> ≤ 12 елементів на фрагмент; більше → різати фрагмент на два </constraint>
+├─ order = порядок ВИКОНАННЯ рушієм після фази підготовки (hoisting / static init /
+│  init() / декоратор при визначенні), не порядок рядків, за lang_<x>.md §2
 │  (hoisted function → №1 навіть у кінці файлу; Java static-блок → до конструктора)
+│  <constraint> два простори нумерації не змішувати: рівень файлу/модуля — ①②③, тіло
+│    функції — f1 f2 f3 з підписом «виконується при виклику <name>()» </constraint>
+│  <constraint> STRUCTURE — order: null, крім Java static / Go init() / Python декоратора </constraint>
 ├─ syntax_sugar → equivalent: розгорнутий еквівалент (lang_<x>.md §3)
-└─ оператор із коерцією → reading: «число→рядок, конкатенація»
+├─ оператор із коерцією → reading: «число→рядок, конкатенація»
+└─ Вбудований запит (рядок SQL у Python, aggregate([...]) у JS) → фрагмент рахується
+   за lang_sql / lang_mongo, не за мовою-обгорткою
 
 Крок 5 — Зібрати гайд
-├─ Записати <категорія>/<проєкт>/code_guide_<sha8>.md (джерело, правило D)
-│  sha8 = перші 8 символів SHA-1 від абсолютного шляху репо
-├─ Згенерувати HTML із guide_template.html →
-│  <категорія>/<проєкт>/artifacts/code_guide_<sha8>.html — завжди
+├─ Категорія фіксована: code/<назва-репо>/ — назва з remote або останньої частини шляху
+├─ sha8 = перші 8 символів SHA-1 від URL `git remote origin`; немає remote → від
+│  абсолютного шляху. Переїзд теки не плодить гайдів
+├─ Записати code/<репо>/code_guide_<sha8>.md (джерело, правило D). Повторний запуск
+│  ЗАВЖДИ перечитує файли й перезаписує; у json — `generated` і `git_commit` (HEAD)
+├─ Рендер: python3 render_guide.py → code/<репо>/artifacts/code_guide_<sha8>.html;
+│  немає python → fallback A (модель заповнює шаблон секціями)
+├─ Сховище: локально → обидва файли за шляхами вище · drive → .md як Google Doc у
+│  Tyama/code/<репо>/, HTML НЕ в Drive (конектор не прочитає), а в артефакт або temp ·
+│  немає → .md блоком за правилом D, HTML в артефакт або temp, «гайд одноразовий» вголос
 ├─ Artifact доступний → опублікувати додатково; недоступний → дати шлях до HTML,
 │  деградація мовчазна
 └─ Teach-back один рядок: «поясни фрагмент №2 своїми словами» — не блокує (правило E)
+   Після відповіді: фідбек за правилом H (де саме / чому / переказ). Провалив пастку →
+   один рядок «це <пастка з lang_<x>.md>; хочеш — teach-concept або feynman-drill».
+   Нічого не логується.
 ```
 
 ## 6. Дерево типів (крок 4)
@@ -150,15 +216,17 @@ skills/code-visual-guide/
 
 ## 7. Схема виводу
 
-`code_guide_<sha8>.md` = YAML-frontmatter з полями нижче (JSON-сумісний) + Mermaid-блоки
-нижче, щоб файл читався і людиною, і наступним запуском скіла.
+`code_guide_<sha8>.md` = короткий заголовок + **один блок ` ```json `** з полями нижче +
+Mermaid-блоки для VS Code / GitHub preview. JSON, а не YAML-frontmatter, бо рендерер на
+stdlib читає його без залежностей, і GitHub показує його як код.
 
 ```json
 {
   "project": "string",
   "generated": "YYYY-MM-DD",
+  "git_commit": "string | null (HEAD на момент генерації)",
   "root_path": "string (абсолютний шлях репо)",
-  "languages": ["js_ts | python | go | java"],
+  "languages": ["js_ts | python | go | java | sql | mongo"],
   "depth": 2,
   "l1": {
     "nodes": [{"id": "src/api", "kind": "dir|file", "summary": "≤1 речення"}],
@@ -170,12 +238,12 @@ skills/code-visual-guide/
     "language": "js_ts",
     "elements": [{
       "type": "data|operation|syntax_sugar|structure",
-      "kind": "const|let|var|literal|function|method|if|loop|async|decorator|spread|destructuring|comprehension|lambda|optional_chaining|import|export|class|interface|type",
+      "kind": "const|let|var|literal|function|method|if|loop|query_stage|async|decorator|spread|destructuring|comprehension|lambda|optional_chaining|cte|import|export|class|interface|type|table|collection|index",
       "name": "string",
       "line": 12,
       "explanation": "≤15 слів",
       "language_specific": true,
-      "order": 3,
+      "order": "3 | 'f2' | null  (① модуль · f-префікс тіло функції · null для STRUCTURE)",
       "equivalent": "string | null",
       "reading": "string | null",
       "side_effect": "string | null"
@@ -190,9 +258,9 @@ skills/code-visual-guide/
 }
 ```
 
-`full_code` зберігається, щоб наступний запуск міг показати фрагмент без повторного
-читання файлу. `order_explanation` живе у фрагменті (не на верхньому рівні), бо кожен
-фрагмент має свій порядок.
+`full_code` зберігається, щоб **рендерити HTML із `.md` без доступу до репо** (з телефона,
+або коли репо вже видалено). Це не кеш: повторний запуск на живому репо завжди перечитує
+файли. `order_explanation` живе у фрагменті, бо кожен фрагмент має свій порядок.
 
 ## 8. HTML-шаблон (`references/guide_template.html`)
 
@@ -229,15 +297,18 @@ skills/code-visual-guide/
 - Не більше 5 кольорів
 - Не більше 3 рівнів вкладеності на діаграмі → групувати в підблоки
 - explanation ≤ 15 слів → інакше розбити елемент на 2
+- L2 ≤ 12 файлів (стеля 16), L3 ≤ 12 елементів на фрагмент
 </boundaries>
 ```
 
 В Artifact Mermaid рендериться нативно; CDN-скрипт потрібен лише для локального файлу.
-Це єдиний зовнішній ресурс у шаблоні.
+Це єдиний зовнішній ресурс у шаблоні. Щоб в артефакті не було подвійного рендеру,
+ініціалізація з CDN виконується лише якщо `<pre class="mermaid">` ще не перетворено на
+SVG (перевірка `querySelector('pre.mermaid svg')` перед `mermaid.run()`).
 
 ## 9. Довідники мов (`references/lang_<x>.md`)
 
-Однакова структура для всіх чотирьох, щоб дерево рішень не залежало від мови:
+Однакова структура для всіх шести, щоб дерево рішень не залежало від мови:
 
 ```
 ## 1. Маркери                       | kind | regex/signal | type |
@@ -255,6 +326,18 @@ skills/code-visual-guide/
 | python | LEGB, mutable default arg, порядок у comprehension (`for` спершу, вираз потім), декоратор = виклик при визначенні, `is` vs `==` |
 | go | `init()` до `main()`, `defer` LIFO, zero values, `:=` shadowing, goroutine стартує пізніше рядка |
 | java | static-блок до конструктора, `+` зі String зліва направо, autoboxing / `Integer` cache, порядок ініціалізації полів, streams ліниві до terminal-операції |
+| sql | логічний порядок `FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT` при написанні з `SELECT`; `NULL` у порівняннях; CTE обчислюється до основного запиту; `USING` vs `ON` |
+| mongo | пайплайн зверху вниз: `$match` до `$lookup` міняє обсяг; `$project` ховає поля для наступних стадій; `$group` скидає `_id`; Mongoose `.lean()` міняє тип результату |
+
+**БД — межі:**
+- L1: файли міграцій / схем — вузли STRUCTURE; ребро від коду до `.sql`/схеми, якщо він
+  її імпортує або читає.
+- L2: таблиці / колекції та поля — STRUCTURE (`table`, `collection`); індекси — STRUCTURE
+  (`index`) з підписом; функції / процедури — OPERATION.
+- L3: запит як фрагмент; стадії запиту — OPERATION (`query_stage`); літерали у `WHERE` /
+  `$eq` — DATA; CTE, `USING`, `$lookup` замість `$match`+join, Mongoose-хелпери — SYNTAX_SUGAR.
+- Поза скоупом: план виконання, індекси як оптимізація, ORM (Prisma, SQLAlchemy,
+  Hibernate) глибше за «це генерує SQL».
 
 ```
 <constraint>
@@ -265,6 +348,10 @@ skills/code-visual-guide/
 
 Node.js — не мова, а рантайм: у `lang_js_ts.md` окремий підрозділ (event loop,
 CommonJS vs ESM, `process`, `require` cache).
+
+`worked_example.md` — на TypeScript-файлі `checkout.ts` (константа, async-функція,
+`reduce` зі стрілкою, коерція `1 + TAX_RATE`): один файл, JSON за схемою, L2 Mermaid,
+один L3-фрагмент із двома просторами нумерації (① модуль, f1… тіло).
 
 ## 10. Tyama-канон у мінімумі
 
@@ -283,14 +370,17 @@ CommonJS vs ESM, `process`, `require` cache).
 |---|---|
 | `skills/teach-concept/SKILL.md`, таблиця пріоритету | рядок «Візуальний гайд по коду репо, «поясни проєкт блоками» → `code-visual-guide`» |
 | `README.md`, «Робочі інструменти» | рядок таблиці: `code-visual-guide` — гайд по репо трьома рівнями L1/L2/L3: дані / операції / цукор / каркас, з порядком читання мовою; лічильник «14 скілів» → 15 |
-| `templates/workspace-structure.md` і `visual_patterns.md` gitignore-блок | `code_guide_*.md`, `artifacts/code_guide_*.html`, рядок `<категорія>/<проєкт>/code_guide_<sha8>.md` у структуру тек |
+| `templates/workspace-structure.md` і `visual_patterns.md` gitignore-блок | `code_guide_*.md`, `artifacts/code_guide_*.html`; у структуру тек — `code/<репо>/code_guide_<sha8>.md` і `code/<репо>/artifacts/` |
 | `.claude-plugin/marketplace.json` | не чіпати |
 
 ## 12. Що свідомо поза скоупом
 
 - AST-парсер або скрипт для L1 (підхід C). L1 робиться через `grep`; скрипт додається
-  пізніше, якщо `grep` не витягує великі репо.
-- Мови поза чотирма: тільки file tree.
+  пізніше, якщо `grep` не витягує великі репо. Єдиний скрипт у скілі — рендерер HTML,
+  він коду не парсить.
+- Мови поза шістьма: тільки file tree.
+- Ребра між мовами (TS-фронт → Go-бек по HTTP): L1 на кожну мову окремо.
+- Логування teach-back у `quiz_log.md`: закріплення роблять `recall-quiz` / `feynman-drill`.
 - Runtime-трейс виконання. `order` — порядок читання мовою, не профайлер.
 - Редагований `.drawio`. Формат — HTML + Mermaid + SVG.
 - Google Drive як сховище для HTML: артефакт і локальний файл достатні; Drive — за
@@ -298,13 +388,24 @@ CommonJS vs ESM, `process`, `require` cache).
 
 ## 13. Тестування
 
-Скіл — це markdown + HTML-шаблон, автоматичних тестів немає. Перевірка:
+Єдиний виконуваний код — рендерер. Він має тест, решта перевіряється руками.
 
-1. `worked_example.md` — повний прохід на одному файлі за схемою §7, з валідним JSON.
-2. `guide_template.html` відкривається локально: Mermaid рендериться з CDN, SVG L3
-   видно без інтернету, `<details>` розгортаються, ширина 400px не ламає layout.
-3. Прогін скіла на цьому ж репо або на маленькому JS/Python-проєкті: вибір L3 за
-   правилом кроку 3, 4 типи в елементах, жодного `type` поза списком, explanation ≤ 15 слів.
-4. `description` ≤ 1024 символи, `name` = тека, YAML-frontmatter валідний (без двокрапки
+1. **Автотест:** `python skills/code-visual-guide/references/test_render_guide.py`
+   (stdlib `unittest`). Бере JSON із `worked_example.md`, рендерить і перевіряє: легенда з
+   5 кольорами; по одному `<pre class="mermaid">` на L1 і на кожен L2-файл; SVG-стрічка з
+   `order`-номерами для кожного фрагмента; жодного незаповненого `{{…}}`; JSON без
+   обов'язкових полів дає зрозумілу помилку, а не traceback. Змінив рендерер або таблицю
+   форм — прожени тест.
+2. `worked_example.md` — повний прохід на одному файлі за схемою §7, з валідним JSON.
+3. `guide_template.html` (і результат рендерера) відкривається локально: Mermaid
+   рендериться з CDN, SVG L3 видно без інтернету, `<details>` розгортаються, ширина
+   400px не ламає layout.
+4. Прогін скіла на цьому ж репо або на маленькому JS/Python-проєкті: вибір L3 за
+   правилом кроку 3, 4 типи в елементах, жодного `type` поза списком, explanation ≤ 15 слів,
+   L2 ≤ 12 файлів.
+5. `description` ≤ 1024 символи, `name` = тека, YAML-frontmatter валідний (без двокрапки
    в description, що обрізає YAML — прецедент у коміті 8bdab65).
-5. Рядки в `teach-concept`, README, `workspace-structure.md` на місці.
+6. Рядки в `teach-concept`, README, `workspace-structure.md` на місці.
+
+Кореневого `CLAUDE.md` із секцією Verification у репо немає — це окреме рішення
+власника (`/feedback-loop`), у скоуп скіла не входить.
