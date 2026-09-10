@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code guide</title>
+<style>
+  /* Самодостатній стиль. Єдиний зовнішній ресурс — mermaid із cdnjs для L1/L2. */
+  :root {
+    --ink: #1a1a1a; --muted: #5b6470; --line: #d7dce3; --bg-soft: #f4f6f9;
+    --data: #3B82F6; --const: #1D4ED8; --operation: #10B981;
+    --sugar: #F59E0B; --structure: #6B7280; --warn: #DC2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: "Segoe UI", Arial, system-ui, sans-serif;
+    color: var(--ink); font-size: 15px; line-height: 1.45; background: #fff; }
+  body { padding: 24px 16px; max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  h2 { font-size: 1.2rem; margin: 28px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--line); }
+  .sub { color: var(--muted); margin: 0 0 12px; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; background: var(--bg-soft);
+    border: 1px solid var(--line); font-size: .85em; margin-right: 4px; }
+  details { border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; margin: 10px 0; }
+  summary { cursor: pointer; font-weight: 600; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 18px; padding: 10px 12px; background: var(--bg-soft);
+    border-radius: 6px; margin: 12px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; }
+  .swatch-data { background: var(--data); }
+  .swatch-const { background: var(--const); }
+  .swatch-operation { background: var(--operation); }
+  .swatch-sugar { background: var(--sugar); }
+  .swatch-structure { background: var(--structure); }
+  .swatch-warn { background: var(--warn); }
+  .callout { border-left: 4px solid var(--warn); background: #fff5f5; padding: 6px 10px; margin: 8px 0; border-radius: 4px; }
+  .callout-orphan { border-color: var(--structure); background: var(--bg-soft); }
+  .error { border: 2px solid var(--warn); background: #fff5f5; padding: 12px; border-radius: 6px; white-space: pre-wrap; }
+  pre.mermaid { background: transparent; overflow-x: auto; }
+  table.elements { border-collapse: collapse; width: 100%; font-size: .92em; }
+  table.elements th, table.elements td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: top; }
+  table.elements td.t-data { border-left: 4px solid var(--data); }
+  table.elements td.t-operation { border-left: 4px solid var(--operation); }
+  table.elements td.t-syntax_sugar { border-left: 4px solid var(--sugar); }
+  table.elements td.t-structure { border-left: 4px solid var(--structure); }
+  .frag { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 760px) { .frag { grid-template-columns: 1fr; } }
+  .code { font-family: Consolas, "Courier New", monospace; font-size: .88em; background: var(--bg-soft);
+    border-radius: 6px; padding: 8px 0; overflow-x: auto; }
+  .code div { display: flex; padding: 0 10px; white-space: pre; }
+  .code .ln { width: 2.5em; color: var(--muted); user-select: none; flex: none; }
+  .line-data { border-left: 4px solid var(--data); }
+  .line-operation { border-left: 4px solid var(--operation); }
+  .line-sugar { border-left: 4px solid var(--sugar); }
+  .line-structure { border-left: 4px solid var(--structure); }
+  .strip { overflow-x: auto; }
+  .strip svg { display: block; max-width: 100%; height: auto; font-family: inherit; }
+  .strip text { font-size: 11px; fill: #fff; }
+  .strip text.label { fill: var(--ink); font-size: 10px; }
+  .strip text.space { fill: var(--muted); font-size: 11px; font-weight: 600; }
+  .why { background: var(--bg-soft); border-radius: 6px; padding: 8px 12px; margin-top: 8px; }
+  footer { margin-top: 32px; color: var(--muted); font-size: .9em; border-top: 1px solid var(--line); padding-top: 12px; }
+</style>
+</head>
+<body>
+<div id="app"><p class="sub">Будую гайд…</p></div>
+
+<!-- Дані гайда. Claude замінює плейсхолдер нижче на JSON із code_guide_<sha8>.md. У JSON послідовність </ пишеться як <\/ -->
+<script id="guide-data" type="application/json">{{DATA}}</script>
+
+<script id="renderer">
+// Рендерер code-visual-guide. Єдине місце правди для форм і кольорів.
+// Працює в браузері (читає #guide-data) і в Node для тестів (document відсутній — boot не викликається).
+const CodeGuide = (function () {
+  "use strict";
+
+  const TYPES = ["data", "operation", "syntax_sugar", "structure"];
+  const COLORS = { data: "#3B82F6", const: "#1D4ED8", operation: "#10B981",
+                   syntax_sugar: "#F59E0B", structure: "#6B7280", warn: "#DC2626" };
+  const FLAG_KINDS = new Set(["async", "decorator", "optional_chaining"]);        // прапорець / трикутник
+  const HEX_KINDS = new Set(["spread", "destructuring", "comprehension", "lambda", "cte"]); // шестикутник
+  const DIAMOND_KINDS = new Set(["if", "loop"]);                                   // ромб
+  const ORDER_RE = /^f\d+$/;
+
+  class GuideError extends Error {}
+
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const mlabel = (s) => String(s).replace(/"/g, "#quot;");
+
+  // ---------------------------------------------------------------- validate
+  function require(obj, keys, where) {
+    const missing = keys.filter((k) => !(k in (obj || {})));
+    if (missing.length) throw new GuideError(`${where}: бракує полів ${missing.join(", ")}`);
+  }
+  function orderOk(o) {
+    return o === null || o === undefined || Number.isInteger(o) || (typeof o === "string" && ORDER_RE.test(o));
+  }
+  function validate(data) {
+    require(data, ["project", "generated", "languages", "depth", "l1", "files"], "верхній рівень");
+    require(data.l1, ["nodes", "edges"], "l1");
+    data.files.forEach((f, i) => {
+      require(f, ["path", "language", "elements"], `files[${i}]`);
+      f.elements.forEach((el, j) => {
+        let where = `files[${i}] ${f.path} -> elements[${j}]`;
+        require(el, ["type", "name", "explanation"], where);
+        where += ` (${el.name})`;
+        if (!TYPES.includes(el.type)) throw new GuideError(`${where}: невідомий type '${el.type}'; дозволено: ${TYPES.join(" | ")}`);
+        const words = String(el.explanation).trim().split(/\s+/).length;
+        if (words > 15) throw new GuideError(`${where}: explanation має ${words} слів, ліміт 15 — розбий елемент на два`);
+        if (!orderOk(el.order)) throw new GuideError(`${where}: order має бути числом, 'f<N>' або null, а не ${JSON.stringify(el.order)}`);
+      });
+      if (f.l3_fragment) require(f.l3_fragment, ["lines", "why_chosen", "full_code", "order_explanation"], `files[${i}] l3_fragment`);
+    });
+  }
+
+  // ----------------------------------------------------------------- Mermaid
+  function mermaidShape(el, label) {
+    const t = el.type, k = el.kind || "";
+    if (t === "data") return k === "const" ? `[["${label}"]]` : `(("${label}"))`;
+    if (t === "operation") return DIAMOND_KINDS.has(k) ? `{"${label}"}` : `["${label}"]`;
+    if (t === "syntax_sugar") return FLAG_KINDS.has(k) ? `>"${label}"]` : `{{"${label}"}}`;
+    return `["${label}"]`;
+  }
+  function classDefs() {
+    return [
+      `classDef data fill:${COLORS.data},color:#fff`,
+      `classDef const fill:${COLORS.const},color:#fff`,
+      `classDef operation fill:${COLORS.operation},color:#fff`,
+      `classDef syntax_sugar fill:${COLORS.syntax_sugar},color:#1a1a1a`,
+      `classDef structure fill:${COLORS.structure},color:#fff,stroke-dasharray:4 2`,
+      `classDef orphan fill:${COLORS.structure},color:#fff,stroke:${COLORS.warn},stroke-dasharray:4 2`,
+    ];
+  }
+  function mermaidL1(l1) {
+    const ids = new Map(l1.nodes.map((n, i) => [n.id, `n${i}`]));
+    const callouts = l1.callouts || [];
+    const orphans = new Set(callouts.filter((c) => c.kind === "orphan").map((c) => c.where));
+    const cycles = callouts.filter((c) => c.kind === "cycle").map((c) => c.where);
+    const lines = ["flowchart LR"];
+    for (const n of l1.nodes) {
+      const label = mlabel(n.id);
+      lines.push(`  ${ids.get(n.id)}${orphans.has(n.id) ? `(("${label}"))` : `["${label}"]`}`);
+    }
+    const red = [];
+    let idx = 0;
+    for (const e of l1.edges) {
+      if (!ids.has(e.from) || !ids.has(e.to)) continue;
+      lines.push(`  ${ids.get(e.from)} --> ${ids.get(e.to)}`);
+      if (cycles.some((w) => w.includes(e.from) && w.includes(e.to))) red.push(idx);
+      idx++;
+    }
+    lines.push(...classDefs().map((c) => "  " + c));
+    const plain = l1.nodes.filter((n) => !orphans.has(n.id)).map((n) => ids.get(n.id));
+    if (plain.length) lines.push(`  class ${plain.join(",")} structure`);
+    const orph = [...orphans].filter((o) => ids.has(o)).map((o) => ids.get(o));
+    if (orph.length) lines.push(`  class ${orph.join(",")} orphan`);
+    if (red.length) lines.push(`  linkStyle ${red.join(",")} stroke:${COLORS.warn},stroke-width:2px`);
+    return lines.join("\n");
+  }
+  function mermaidL2(f) {
+    const els = f.elements;
+    const byName = new Map();
+    els.forEach((el, i) => { if (!byName.has(el.name)) byName.set(el.name, `e${i}`); });
+    const lines = ["flowchart TD"];
+    els.forEach((el, i) => lines.push(`  e${i}${mermaidShape(el, mlabel(el.name))}`));
+    els.forEach((el, i) => (el.calls || []).forEach((t) => { if (byName.has(t)) lines.push(`  e${i} --> ${byName.get(t)}`); }));
+    lines.push(...classDefs().map((c) => "  " + c));
+    const groups = new Map();
+    els.forEach((el, i) => {
+      const cls = el.type === "data" && el.kind === "const" ? "const" : el.type;
+      if (!groups.has(cls)) groups.set(cls, []);
+      groups.get(cls).push(`e${i}`);
+    });
+    for (const [cls, members] of groups) lines.push(`  class ${members.join(",")} ${cls}`);
+    els.forEach((el, i) => { if (el.side_effect) lines.push(`  style e${i} stroke:${COLORS.warn},stroke-width:3px`); });
+    return lines.join("\n");
+  }
+
+  // ---------------------------------------------------------------- SVG L3
+  const orderKey = (o) => (Number.isInteger(o) ? [0, o] : [1, parseInt(String(o).slice(1), 10)]);
+  function svgShape(el, cx, cy) {
+    const t = el.type, k = el.kind || "";
+    const fill = t === "data" && k === "const" ? COLORS.const : COLORS[t];
+    const stroke = el.side_effect ? ` stroke="${COLORS.warn}" stroke-width="3"` : "";
+    if (t === "data") {
+      return k === "const"
+        ? `<rect x="${cx - 15}" y="${cy - 15}" width="30" height="30" fill="${fill}"${stroke}/>`
+        : `<circle cx="${cx}" cy="${cy}" r="16" fill="${fill}"${stroke}/>`;
+    }
+    if (t === "operation") {
+      return DIAMOND_KINDS.has(k)
+        ? `<polygon points="${cx},${cy - 18} ${cx + 18},${cy} ${cx},${cy + 18} ${cx - 18},${cy}" fill="${fill}"${stroke}/>`
+        : `<rect x="${cx - 20}" y="${cy - 14}" width="40" height="28" rx="4" fill="${fill}"${stroke}/>`;
+    }
+    if (t === "syntax_sugar") {
+      return FLAG_KINDS.has(k)
+        ? `<polygon class="sugar-tri" points="${cx - 18},${cy - 14} ${cx + 18},${cy - 14} ${cx},${cy + 16}" fill="${fill}"${stroke}/>`
+        : `<polygon class="sugar-hex" points="${cx},${cy - 18} ${cx + 16},${cy - 9} ${cx + 16},${cy + 9} ${cx},${cy + 18} ${cx - 16},${cy + 9} ${cx - 16},${cy - 9}" fill="${fill}"${stroke}/>`;
+    }
+    return `<rect x="${cx - 20}" y="${cy - 14}" width="40" height="28" fill="#fff" stroke="${fill}" stroke-dasharray="4 2" stroke-width="2"${stroke}/>`;
+  }
+  function svgStrip(f) {
+    const ordered = f.elements.filter((el) => el.order !== null && el.order !== undefined)
+      .sort((a, b) => { const [x, y] = [orderKey(a.order), orderKey(b.order)]; return x[0] - y[0] || x[1] - y[1]; });
+    const rows = [["модуль", ordered.filter((el) => Number.isInteger(el.order))],
+                  ["виклик", ordered.filter((el) => typeof el.order === "string")]].filter((r) => r[1].length);
+    if (!rows.length) return "";
+    const step = 72, left = 70, rowH = 92;
+    const width = left + step * Math.max(...rows.map((r) => r[1].length)) + 20;
+    const height = rowH * rows.length;
+    const out = [`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img">`,
+      `<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6470"/></marker></defs>`];
+    rows.forEach(([name, els], r) => {
+      const cy = r * rowH + 40;
+      out.push(`<text class="space" x="4" y="${cy + 4}">${esc(name)}</text>`);
+      els.forEach((el, i) => {
+        const cx = left + i * step;
+        if (i) out.push(`<line x1="${cx - step + 22}" y1="${cy}" x2="${cx - 24}" y2="${cy}" stroke="#5b6470" marker-end="url(#arr)"/>`);
+        const fill = el.type === "syntax_sugar" ? "#1a1a1a" : "#fff";
+        out.push(`<g><title>${esc(el.name + " — " + el.explanation)}</title>${svgShape(el, cx, cy)}` +
+          `<text x="${cx}" y="${cy + 4}" text-anchor="middle" fill="${fill}">${esc(el.order)}</text>` +
+          `<text class="label" x="${cx}" y="${cy + 34}" text-anchor="middle">${esc(String(el.name).slice(0, 14))}</text></g>`);
+      });
+    });
+    out.push("</svg>");
+    return out.join("");
+  }
+
+  // --------------------------------------------------------------- sections
+  const LINE_CLASS = { data: "line-data", operation: "line-operation", syntax_sugar: "line-sugar", structure: "line-structure" };
+  function codeBlock(f) {
+    const frag = f.l3_fragment;
+    const start = parseInt(String(frag.lines).split("-")[0], 10);
+    const byLine = new Map();
+    for (const el of f.elements) if (Number.isInteger(el.line) && el.order != null && !byLine.has(el.line)) byLine.set(el.line, el.type);
+    for (const el of f.elements) if (Number.isInteger(el.line) && !byLine.has(el.line)) byLine.set(el.line, el.type);
+    return `<div class="code">` + frag.full_code.split("\n").map((text, i) => {
+      const ln = start + i;
+      return `<div class="${LINE_CLASS[byLine.get(ln)] || ""}"><span class="ln">${ln}</span>${esc(text)}</div>`;
+    }).join("") + `</div>`;
+  }
+  function elementsTable(f) {
+    return `<table class="elements"><thead><tr><th>type</th><th>name</th><th>рядок</th><th>order</th><th>що робить</th></tr></thead><tbody>` +
+      f.elements.map((el) => `<tr><td class="t-${el.type}">${esc(el.type)}</td><td><code>${esc(el.name)}</code></td>` +
+        `<td>${esc(el.line ?? "")}</td><td>${el.order == null ? "—" : esc(el.order)}</td><td>${esc(el.explanation)}</td></tr>`).join("") +
+      `</tbody></table>`;
+  }
+  const callout = (kind, text) => `<div class="callout callout-${kind}">${esc(text)}</div>`;
+
+  function legend() {
+    return `<div class="legend" aria-label="Легенда">
+  <span><i class="swatch-data"></i> DATA — літерали, змінні зі значеннями</span>
+  <span><i class="swatch-const"></i> DATA/const — незмінні значення</span>
+  <span><i class="swatch-operation"></i> OPERATION — функції, оператори, умови, цикли</span>
+  <span><i class="swatch-sugar"></i> SYNTAX_SUGAR — скорочення мови, є розгорнутий еквівалент</span>
+  <span><i class="swatch-structure"></i> STRUCTURE — імпорти, класи, типи: каркас, не логіка</span>
+  <span><i class="swatch-warn"></i> ⚠️ side effect / цикл імпортів</span>
+</div>`;
+  }
+  function header(data) {
+    const langs = data.languages.map((l) => `<span class="badge">${esc(l)}</span>`).join(" ");
+    return `<header><h1>Code guide — ${esc(data.project)}</h1>` +
+      `<p class="sub">${esc(data.generated)} · commit ${esc(data.git_commit || "—")} · depth ${esc(data.depth)} · ${langs}</p></header>`;
+  }
+  function l1Html(data) {
+    const l1 = data.l1;
+    const tree = l1.nodes.map((n) => `<li><code>${esc(n.id)}</code> — ${esc(n.summary || "")}</li>`).join("");
+    const callouts = (l1.callouts || []).map((c) => callout(c.kind || "cycle", `${c.where || ""}: ${c.note || ""}`)).join("");
+    return `<section id="l1"><h2>L1 — Проєкт</h2><details open><summary>Файли та залежності</summary><ul>${tree}</ul>${callouts}` +
+      `<pre class="mermaid">${esc(mermaidL1(l1))}</pre></details></section>`;
+  }
+  function l2Html(data) {
+    const note = data.l2_note ? `<p class="sub">${esc(data.l2_note)}</p>` : "";
+    const open = data.depth === 1 ? " open" : "";
+    return `<section id="l2"><h2>L2 — Файли</h2>${note}` + data.files.map((f) => {
+      const callouts = f.elements.filter((el) => el.side_effect).map((el) => callout("side-effect", `⚠️ ${el.name}: ${el.side_effect}`)).join("");
+      return `<details${open}><summary><code>${esc(f.path)}</code> · ${esc(f.language)}</summary>${callouts}${elementsTable(f)}` +
+        `<pre class="mermaid">${esc(mermaidL2(f))}</pre></details>`;
+    }).join("") + `</section>`;
+  }
+  function l3Html(data) {
+    const frags = data.files.filter((f) => f.l3_fragment);
+    const body = frags.length ? frags.map((f, n) => {
+      const frag = f.l3_fragment;
+      const eq = f.elements.filter((el) => el.equivalent).map((el) => `<li><code>${esc(el.name)}</code> → <code>${esc(el.equivalent)}</code></li>`).join("");
+      const rd = f.elements.filter((el) => el.reading).map((el) => `<li><code>${esc(el.name)}</code>: ${esc(el.reading)}</li>`).join("");
+      return `<details open><summary>Фрагмент №${n + 1} · <code>${esc(f.path)}</code> · рядки ${esc(frag.lines)} · обрано: ${esc(frag.why_chosen)}</summary>` +
+        `<div class="frag">${codeBlock(f)}<div class="strip">${svgStrip(f)}</div></div>` +
+        `<div class="why"><strong>Чому такий порядок:</strong> ${esc(frag.order_explanation)}</div>` +
+        (rd ? `<p><strong>Як читає мова:</strong></p><ul>${rd}</ul>` : "") +
+        (eq ? `<p><strong>Еквівалент без цукру:</strong></p><ul>${eq}</ul>` : "") + `</details>`;
+    }).join("") : `<p class="sub">L3 не будувався (depth 1).</p>`;
+    return `<section id="l3"><h2>L3 — Як читає мова</h2>${body}</section>`;
+  }
+  function teachback(data) {
+    const frags = data.files.filter((f) => f.l3_fragment);
+    if (!frags.length) return "Назви три файли, через які проходить головний сценарій, і скажи, що кожен віддає наступному.";
+    const n = frags.length > 1 ? 2 : 1, f = frags[n - 1];
+    return `Поясни своїми словами фрагмент №${n} (${f.path}, рядки ${f.l3_fragment.lines}): у якому порядку його виконує мова і чому.`;
+  }
+  function footer(data) {
+    return `<footer><p><strong>Перевір себе:</strong> ${esc(teachback(data))}</p>` +
+      `<p>Джерело гайда: <code>${esc(data.source_md || "code_guide_<sha8>.md")}</code>. Змінився код — перегенеруй, не прав HTML руками.</p></footer>`;
+  }
+
+  // Повний HTML тіла для #app. Кидає GuideError, якщо дані невалідні.
+  function render(data) {
+    validate(data);
+    return header(data) + legend() + l1Html(data) + l2Html(data) + l3Html(data) + footer(data);
+  }
+
+  // ------------------------------------------------------------------- boot
+  function boot() {
+    const app = document.getElementById("app");
+    let data;
+    try {
+      data = JSON.parse(document.getElementById("guide-data").textContent);
+      app.innerHTML = render(data);
+      document.title = `Code guide — ${data.project}`;
+    } catch (e) {
+      app.innerHTML = `<div class="error">Помилка гайда: ${esc(e.message)}</div>`;
+      return;
+    }
+    // Mermaid: в Artifact pre.mermaid може відрендерити хост; чекаємо, і лише якщо SVG так і не з'явився — рендеримо самі.
+    setTimeout(() => {
+      if (!window.mermaid || document.querySelector("pre.mermaid svg")) return;
+      window.mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+      window.mermaid.run({ querySelector: "pre.mermaid" });
+    }, 1500);
+  }
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+  }
+
+  return { TYPES, COLORS, GuideError, validate, mermaidL1, mermaidL2, svgStrip, render, teachback };
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js"></script>
+</body>
+</html>
