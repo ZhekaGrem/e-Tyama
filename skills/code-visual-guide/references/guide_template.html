@@ -64,7 +64,7 @@
 <body>
 <div id="app"><p class="sub">Будую гайд…</p></div>
 
-<!-- Дані гайда. Claude замінює плейсхолдер нижче на JSON із code_guide_<sha8>.md. У JSON послідовність </ пишеться як <\/ -->
+<!-- Дані гайда. Claude замінює плейсхолдер нижче на JSON із code_guide_<sha8>.md. У JSON кожен < записується як \u003c (script-дані реагують і на <!--) -->
 <script id="guide-data" type="application/json">{{DATA}}</script>
 
 <script id="renderer">
@@ -83,7 +83,7 @@ const CodeGuide = (function () {
   class GuideError extends Error {}
 
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  const mlabel = (s) => String(s).replace(/"/g, "#quot;");
+  const mlabel = (s) => String(s).replace(/\s*\r?\n\s*/g, " ").replace(/"/g, "#quot;");
 
   // ---------------------------------------------------------------- validate
   function require(obj, keys, where) {
@@ -93,9 +93,13 @@ const CodeGuide = (function () {
   function orderOk(o) {
     return o === null || o === undefined || Number.isInteger(o) || (typeof o === "string" && ORDER_RE.test(o));
   }
+  const LINES_RE = /^\d+(-\d+)?$/;
   function validate(data) {
     require(data, ["project", "generated", "languages", "depth", "l1", "files"], "верхній рівень");
+    if (!Array.isArray(data.files)) throw new GuideError(`верхній рівень: files має бути масивом`);
     require(data.l1, ["nodes", "edges"], "l1");
+    if (!Array.isArray(data.l1.nodes)) throw new GuideError(`l1: nodes має бути масивом`);
+    if (!Array.isArray(data.l1.edges)) throw new GuideError(`l1: edges має бути масивом`);
     data.files.forEach((f, i) => {
       require(f, ["path", "language", "elements"], `files[${i}]`);
       f.elements.forEach((el, j) => {
@@ -107,7 +111,10 @@ const CodeGuide = (function () {
         if (words > 15) throw new GuideError(`${where}: explanation має ${words} слів, ліміт 15 — розбий елемент на два`);
         if (!orderOk(el.order)) throw new GuideError(`${where}: order має бути числом, 'f<N>' або null, а не ${JSON.stringify(el.order)}`);
       });
-      if (f.l3_fragment) require(f.l3_fragment, ["lines", "why_chosen", "full_code", "order_explanation"], `files[${i}] l3_fragment`);
+      if (f.l3_fragment) {
+        require(f.l3_fragment, ["lines", "why_chosen", "full_code", "order_explanation"], `files[${i}] l3_fragment`);
+        if (!LINES_RE.test(String(f.l3_fragment.lines))) throw new GuideError(`files[${i}] ${f.path} l3_fragment: lines має вигляд "10-18", а не ${JSON.stringify(f.l3_fragment.lines)}`);
+      }
     });
     (data.l1.callouts || []).forEach((c, i) => {
       const allowed = ["cycle", "orphan"];
@@ -291,7 +298,8 @@ const CodeGuide = (function () {
         `<div class="why"><strong>Чому такий порядок:</strong> ${esc(frag.order_explanation)}</div>` +
         (rd ? `<p><strong>Як читає мова:</strong></p><ul>${rd}</ul>` : "") +
         (eq ? `<p><strong>Еквівалент без цукру:</strong></p><ul>${eq}</ul>` : "") + `</details>`;
-    }).join("") : `<p class="sub">L3 не будувався (depth 1).</p>`;
+    }).join("") : (data.depth === 1 ? `<p class="sub">L3 не будувався (depth 1).</p>`
+      : `<p class="sub">L3: жоден файл не підійшов під фрагмент (≥ 5 рядків або entry).</p>`);
     return `<section id="l3"><h2>L3 — Як читає мова</h2>${body}</section>`;
   }
   function teachback(data) {

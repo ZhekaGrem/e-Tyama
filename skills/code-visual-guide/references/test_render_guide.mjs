@@ -131,3 +131,36 @@ test("depth 1 без фрагментів дає підпис замість L3 
   assert.ok(out.includes("L3 не будувався"));
   assert.match(CG.teachback(d), /три файли/);
 });
+
+// --- екранування вставки в script-тег -----------------------------------------
+test("вставка JSON екранує кожен < як \\u003c", () => {
+  const json = JSON.stringify(exampleData()).replace(/</g, "\\u003c");
+  assert.ok(!json.includes("<"), "у вставці не лишилось жодного <");
+  assert.deepEqual(JSON.parse(json), exampleData());
+});
+
+// --- більше валідації -----------------------------------------------------------
+test("lines у чужому форматі відхиляється", () => {
+  const d = exampleData(); d.files[0].l3_fragment.lines = "перші рядки";
+  assert.throws(() => CG.validate(d), (e) => e instanceof CG.GuideError && /lines/.test(e.message));
+});
+test("files не масив дає людську помилку", () => {
+  const d = exampleData(); d.files = {};
+  assert.throws(() => CG.validate(d), (e) => e instanceof CG.GuideError && /масивом/.test(e.message));
+});
+
+// --- Mermaid і фікстура ----------------------------------------------------------
+test("ім'я з переносом рядка не ламає Mermaid", () => {
+  const d = exampleData(); d.files[0].elements[1].name = "a\nb";
+  const out = CG.mermaidL2(d.files[0]);
+  assert.ok(!out.includes("a\nb"));
+  assert.ok(out.includes("a b"));
+});
+test("кожен f-order лежить у тілі функції фікстури", () => {
+  const d = exampleData();
+  for (const el of d.files[0].elements) {
+    if (typeof el.order === "string") {
+      assert.ok(el.line >= 3 && el.line <= 6, `${el.name}: line ${el.line} поза тілом функції (3-6)`);
+    }
+  }
+});
