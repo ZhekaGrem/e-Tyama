@@ -102,7 +102,7 @@ type="application/json">`, валідує його і будує L1/L2 (Mermaid)
 HTML так: Read шаблону → замінити `{{DATA}}` на JSON із ` ```json `-блоку `.md` (з `</` → `<\/`)
 → Write у `artifacts/`. Помилка даних → червоний блок «Помилка гайда: …» замість порожньої
 сторінки. Форми й кольори — в одній таблиці всередині рендерера (§3). Тест — `node --test
-skills/code-visual-guide/references/` (Node 18+), потрібен лише тому, хто править скіл.
+skills/code-visual-guide/references/test_render_guide.mjs` (Node 18+), потрібен лише тому, хто править скіл.
 
 Формат SKILL.md: markdown-заголовки для навігації + тегові блоки всередині
 (`<decision_tree>`, `<boundaries>`, `<output_schema>`, `<constraint>` у кожному кроці).
@@ -405,7 +405,7 @@ CommonJS vs ESM, `process`, `require` cache).
 
 Єдиний виконуваний код — рендерер у шаблоні. Він має тест, решта перевіряється руками.
 
-1. **Автотест:** `node --test skills/code-visual-guide/references/` (вбудований раннер
+1. **Автотест:** `node --test skills/code-visual-guide/references/test_render_guide.mjs` (вбудований раннер
    Node 18+, без npm; потрібен лише автору скіла). Витягує `<script id="renderer">` із
    шаблону, бере JSON із `worked_example.md`, рендерить і перевіряє: легенда з 5 кольорами;
    по одному `<pre class="mermaid">` на L1 і на кожен L2-файл; SVG-стрічка з `order`-номерами

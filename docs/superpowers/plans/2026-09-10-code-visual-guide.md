@@ -19,7 +19,7 @@
 - `explanation` ≤ 15 слів; L2 ≤ 12 файлів (стеля 16); L3 ≤ 12 елементів на фрагмент; фрагмент 5–10 рядків.
 - `order` = порядок виконання після фази підготовки; ціле для рівня модуля, `"f<N>"` для тіла функції, `null` для STRUCTURE (крім static / `init()` / декоратора).
 - **Учню не потрібні ні Python, ні Node.** Рендер — у браузері; HTML збирається як `guide_template.html` з `{{DATA}}` → JSON, через Read + Write у Claude Code.
-- Рендерер живе в `<script id="renderer">` шаблону і ніде більше; тест витягує його звідти. Тест — одна команда: `node --test skills/code-visual-guide/references/` (Node 18+; лише для того, хто править скіл).
+- Рендерер живе в `<script id="renderer">` шаблону і ніде більше; тест витягує його звідти. Тест — одна команда: `node --test skills/code-visual-guide/references/test_render_guide.mjs` (Node 18+; лише для того, хто править скіл).
 - У JSON, вставленому в `<script type="application/json">`, послідовність `</` пишеться як `<\/`.
 - `classDef` зі `stroke-dasharray` — лише через пробіл (`4 2`), кома в Mermaid — роздільник.
 - Mermaid у HTML: `<pre class="mermaid">`, `classDef` всередині діаграми; скрипт `https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js` (перевірено 2026-09-10: HTTP 200); ініціалізація лише якщо `pre.mermaid svg` ще немає.
@@ -572,7 +572,7 @@ git commit -m "feat(code-visual-guide): add the self-rendering HTML guide templa
   `TYPES, COLORS, GuideError, validate(data), mermaidL1(l1), mermaidL2(file), svgStrip(file),
   render(data) -> string, teachback(data) -> string`; блок ` ```json ` із `worked_example.md`.
 - Produces: одна команда перевірки для того, хто править скіл:
-  `node --test skills/code-visual-guide/references/`. Учню Node не потрібен — рендер іде в браузері.
+  `node --test skills/code-visual-guide/references/test_render_guide.mjs`. Учню Node не потрібен — рендер іде в браузері.
 
 Порядок TDD тут інвертований відносно звички «спершу тест»: шаблон із Task 2 уже написаний,
 бо його зміст (CSS, легенда) не виводиться з тестів. Тест фіксує контракт і ловить регресії
@@ -583,7 +583,7 @@ git commit -m "feat(code-visual-guide): add the self-rendering HTML guide templa
 `skills/code-visual-guide/references/test_render_guide.mjs`:
 
 ```js
-// Тести рендерера code-visual-guide. Запуск: node --test skills/code-visual-guide/references/
+// Тести рендерера code-visual-guide. Запуск: node --test skills/code-visual-guide/references/test_render_guide.mjs
 // Рендерер живе всередині guide_template.html (<script id="renderer">); тест витягує його звідти,
 // тому джерело правди одне. Node потрібен лише тому, хто править скіл, не учню.
 import { test } from "node:test";
@@ -716,7 +716,7 @@ test("depth 1 без фрагментів дає підпис замість L3 
 - [ ] **Step 2: Запустити**
 
 ```bash
-node --test skills/code-visual-guide/references/
+node --test skills/code-visual-guide/references/test_render_guide.mjs
 ```
 
 Expected: `# tests 20`, `# pass 20`, `# fail 0`. Якщо падає «шаблон має рівно один
@@ -1880,7 +1880,7 @@ Go `init()` → до `main`; Python-декоратор → при `def`; SQL →
 6. Файл `.md` реально записано за шляхом, який назвав учню? Якщо ні — сказано чесно?
 7. Учню поставлено teach-back?
 8. Для того, хто **править скіл:** змінив рендерер, шаблон або таблицю форм — прогнав
-   `node --test skills/code-visual-guide/references/` і він зелений?
+   `node --test skills/code-visual-guide/references/test_render_guide.mjs` і він зелений?
 ````
 
 - [ ] **Step 2: Перевірити frontmatter** — довжина description і відсутність двокрапки:
@@ -2008,7 +2008,7 @@ console.log("started");
 - [ ] **Step 3: Повний прогін тесту й перевірка description**
 
 ```bash
-node --test skills/code-visual-guide/references/
+node --test skills/code-visual-guide/references/test_render_guide.mjs
 ```
 
 Expected: `# pass 20`, `# fail 0`. Плюс Step 2 з Task 10 (description) — `colon inside: False`.
