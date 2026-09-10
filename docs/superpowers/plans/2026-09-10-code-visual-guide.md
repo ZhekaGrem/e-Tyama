@@ -4,9 +4,9 @@
 
 **Goal:** Додати в Tyama скіл `code-visual-guide`, який будує по репозиторію візуальний гайд трьома рівнями (проєкт → файл → вираз), розкладаючи код на DATA / OPERATION / SYNTAX_SUGAR / STRUCTURE і показуючи номерами, в якому порядку мова реально виконує фрагмент.
 
-**Architecture:** Тонкий `SKILL.md` з деревом рішень і constraint-ами поруч із кроками; шість довідників `lang_<x>.md` з однаковою структурою; дані гайда — один ` ```json `-блок у `code_guide_<sha8>.md`; детермінований рендерер `render_guide.py` (Python 3 stdlib) підставляє дані в `guide_template.html` і сам малює SVG-стрічки L3; `unittest` на рендерер. Модель відповідає лише за дані, візуал — за рендерером.
+**Architecture:** Тонкий `SKILL.md` з деревом рішень і constraint-ами поруч із кроками; шість довідників `lang_<x>.md` з однаковою структурою; дані гайда — один ` ```json `-блок у `code_guide_<sha8>.md`; рендерер — inline-JS усередині `guide_template.html`, який у браузері читає JSON із `<script type="application/json">` і сам будує L1/L2 (Mermaid) та L3 (SVG). Claude лише вставляє JSON у плейсхолдер `{{DATA}}` — жодного рантайму на машині учня. Тест на рендерер — `node --test`, потрібен лише тому, хто править скіл.
 
-**Tech Stack:** Markdown-скіл для Claude Code, Python 3.10+ stdlib (`json`, `html`, `re`, `pathlib`, `unittest`), Mermaid 11.15.0 з cdnjs для L1/L2, inline SVG для L3.
+**Tech Stack:** Markdown-скіл для Claude Code, самодостатній HTML із vanilla JS (без збірки, без залежностей), Mermaid 11.15.0 з cdnjs для L1/L2, inline SVG для L3, Node 18+ вбудований `node --test` лише для тестів скіла.
 
 **Spec:** `docs/superpowers/specs/2026-09-10-code-visual-guide-design.md` — план аргументує від неї; виконавець читає обидва документи.
 
@@ -18,8 +18,10 @@
 - Палітра рівно 5 кольорів: data `#3B82F6` (const `#1D4ED8`), operation `#10B981`, syntax_sugar `#F59E0B`, structure `#6B7280`, попередження `#DC2626`.
 - `explanation` ≤ 15 слів; L2 ≤ 12 файлів (стеля 16); L3 ≤ 12 елементів на фрагмент; фрагмент 5–10 рядків.
 - `order` = порядок виконання після фази підготовки; ціле для рівня модуля, `"f<N>"` для тіла функції, `null` для STRUCTURE (крім static / `init()` / декоратора).
-- Рендерер — тільки stdlib, без `pip`. Запуск: `python skills/code-visual-guide/references/render_guide.py <in.md> <out.html>`.
-- Тест — одна команда: `python skills/code-visual-guide/references/test_render_guide.py`.
+- **Учню не потрібні ні Python, ні Node.** Рендер — у браузері; HTML збирається як `guide_template.html` з `{{DATA}}` → JSON, через Read + Write у Claude Code.
+- Рендерер живе в `<script id="renderer">` шаблону і ніде більше; тест витягує його звідти. Тест — одна команда: `node --test skills/code-visual-guide/references/` (Node 18+; лише для того, хто править скіл).
+- У JSON, вставленому в `<script type="application/json">`, послідовність `</` пишеться як `<\/`.
+- `classDef` зі `stroke-dasharray` — лише через пробіл (`4 2`), кома в Mermaid — роздільник.
 - Mermaid у HTML: `<pre class="mermaid">`, `classDef` всередині діаграми; скрипт `https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js` (перевірено 2026-09-10: HTTP 200); ініціалізація лише якщо `pre.mermaid svg` ще немає.
 - Кожне правило в `lang_<x>.md` має посилання на spec / MDN / офіційну доку, **перевірене WebFetch на момент написання**.
 - Коміти: Conventional Commits англійською, без атрибуції, без цифр тестів і мета-коментарів.
@@ -31,9 +33,8 @@
 |---|---|
 | `skills/code-visual-guide/SKILL.md` | тригер, профіль, 4D, дерево рішень кроків 0–5, boundaries, output_schema, один приклад, анти-патерни, Verification |
 | `skills/code-visual-guide/references/worked_example.md` | фікстура: повний `code_guide` для `checkout.ts` за схемою; читає тест і людина |
-| `skills/code-visual-guide/references/guide_template.html` | самодостатній HTML із плейсхолдерами `{{...}}`, CSS, легенда, Mermaid-скрипт із guard |
-| `skills/code-visual-guide/references/render_guide.py` | `.md` → JSON → HTML; таблиця форм/кольорів; SVG L3; валідація з людською помилкою |
-| `skills/code-visual-guide/references/test_render_guide.py` | `unittest` на рендерер поверх `worked_example.md` |
+| `skills/code-visual-guide/references/guide_template.html` | самодостатній HTML: CSS, `<script id="guide-data">{{DATA}}</script>`, inline-рендерер `CodeGuide` (валідація, таблиця форм/кольорів, Mermaid L1/L2, SVG L3), Mermaid-скрипт із відкладеним guard |
+| `skills/code-visual-guide/references/test_render_guide.mjs` | `node --test` на рендерер, витягнутий із шаблону, поверх `worked_example.md` |
 | `skills/code-visual-guide/references/lang_js_ts.md` | маркери, пастки, цукор, side effects, entry для JS/TS + Node.js |
 | `skills/code-visual-guide/references/lang_python.md` | те саме для Python |
 | `skills/code-visual-guide/references/lang_go.md` | те саме для Go |
@@ -45,7 +46,7 @@
 | `templates/workspace-structure.md` (modify) | `code/<репо>/` у структурі, gitignore-рядки |
 | `skills/teach-concept/references/visual_patterns.md` (modify, gitignore-блок) | ті самі gitignore-рядки |
 
-Порядок задач: фікстура → шаблон → рендерер+тест → шість довідників (незалежні, можна паралельно) → SKILL.md → інтеграції → smoke-прогін.
+Порядок задач: фікстура → шаблон із рендерером → тест → шість довідників (незалежні, можна паралельно) → SKILL.md → інтеграції → smoke-прогін.
 
 ---
 
@@ -55,7 +56,7 @@
 - Create: `skills/code-visual-guide/references/worked_example.md`
 
 **Interfaces:**
-- Produces: файл із рівно одним блоком ` ```json ` за схемою §7 spec + Mermaid-блоки. Тест у Task 3 читає його як `Path(__file__).parent / "worked_example.md"`. Ключі JSON нижче — канонічні імена, які використовує рендерер.
+- Produces: файл із рівно одним блоком ` ```json ` за схемою §7 spec. Тест у Task 3 читає його з тієї ж теки. Ключі JSON нижче — канонічні імена, які використовує рендерер.
 
 - [ ] **Step 1: Створити теку і файл**
 
@@ -68,7 +69,7 @@ mkdir -p skills/code-visual-guide/references
 ````markdown
 # Worked example — `checkout.ts`
 
-Повний прохід скіла на одному файлі. Це **фікстура**: `test_render_guide.py` читає JSON
+Повний прохід скіла на одному файлі. Це **фікстура**: `test_render_guide.mjs` читає JSON
 звідси, тому блок нижче має лишатись валідним за схемою з `SKILL.md`.
 
 ## Вхід
@@ -156,51 +157,24 @@ export async function calculateTotal(items: Item[]) {
 
 ## Що з цього бачить учень
 
-### L1
-
-```mermaid
-flowchart LR
-  A["src/checkout.ts"] --> B["src/types.ts"]
-  classDef structure fill:#6B7280,color:#fff,stroke-dasharray:4 2
-  class A,B structure
-```
-
-### L2 — `src/checkout.ts`
-
-```mermaid
-flowchart TD
-  imp["import Item"]
-  fn["calculateTotal"]
-  tax[["TAX_RATE"]]
-  red["reduce"]
-  fn --> red
-  classDef data fill:#3B82F6,color:#fff
-  classDef const fill:#1D4ED8,color:#fff
-  classDef operation fill:#10B981,color:#fff
-  classDef structure fill:#6B7280,color:#fff,stroke-dasharray:4 2
-  class imp structure
-  class fn,red operation
-  class tax const
-```
-
-### L3 — фрагмент, обраний за правилом `trap`
-
+HTML будує рендерер із JSON вище: L1 — граф `checkout.ts → types.ts`; L2 — таблиця 12
+елементів і Mermaid із стрілкою `calculateTotal → reduce`; L3 — код зліва, стрічка справа.
 Два простори нумерації: ①②③ — модуль при завантаженні; f1…f8 — тіло при виклику
 `calculateTotal()`. Головна пастка: функція існує **до** константи, а аргументи `reduce`
-обчислюються **до** самого виклику.
+обчислюються **до** самого виклику. Mermaid у `.md` не пишеться — форми знає лише рендерер.
 ````
 
 - [ ] **Step 2: Перевірити, що JSON валідний**
 
 ```bash
-python - <<'EOF'
-import re, json, pathlib
-t = pathlib.Path("skills/code-visual-guide/references/worked_example.md").read_text(encoding="utf-8")
-m = re.search(r"```json\n(.*?)\n```", t, re.S)
-d = json.loads(m.group(1))
-print(len(d["files"][0]["elements"]), "elements")
-EOF
+node -e '
+const t=require("fs").readFileSync("skills/code-visual-guide/references/worked_example.md","utf8");
+const d=JSON.parse(t.match(/```json[ \t]*\r?\n([\s\S]*?)\r?\n```/)[1]);
+console.log(d.files[0].elements.length, "elements");
+'
 ```
+
+Це dev-перевірка автора скіла; учню Node не потрібен.
 
 Expected: `12 elements`, без traceback.
 
@@ -213,24 +187,28 @@ git commit -m "feat(code-visual-guide): add the worked example fixture"
 
 ---
 
-### Task 2: HTML-шаблон `guide_template.html`
+### Task 2: Шаблон із вбудованим рендерером `guide_template.html`
 
 **Files:**
 - Create: `skills/code-visual-guide/references/guide_template.html`
 
 **Interfaces:**
-- Produces: плейсхолдери, які рендерер (Task 3) замінює через `str.replace`: `{{PROJECT}}`, `{{GENERATED}}`, `{{GIT_COMMIT}}`, `{{LANGS}}`, `{{DEPTH}}`, `{{L1}}`, `{{L2}}`, `{{L3}}`, `{{TEACHBACK}}`, `{{MD_PATH}}`. Інших `{{` у файлі бути не має — тест перевіряє відсутність `{{` у результаті.
-- CSS-класи, на які спирається рендерер: `.legend`, `.swatch-data`, `.swatch-const`, `.swatch-operation`, `.swatch-sugar`, `.swatch-structure`, `.swatch-warn`, `.callout`, `.callout-cycle`, `.callout-orphan`, `.callout-side-effect`, `.code`, `.ln`, `.line-data`, `.line-operation`, `.line-sugar`, `.line-structure`, `.strip`, `.frag`, `.elements`.
+- Produces: один плейсхолдер `{{DATA}}` усередині `<script id="guide-data" type="application/json">`;
+  глобал `CodeGuide` у `<script id="renderer">` з API `TYPES, COLORS, GuideError, validate(data),
+  mermaidL1(l1), mermaidL2(file), svgStrip(file), render(data) -> string, teachback(data) -> string`.
+  У браузері `boot()` читає JSON, викликає `render`, пише в `#app`, через 1500 мс запускає Mermaid,
+  якщо хост не відрендерив сам. Помилка даних → червоний блок `.error` з текстом, не порожня сторінка.
+- Опційне поле даних `source_md` (шлях до `.md`) показується у футері.
 
 - [ ] **Step 1: Написати файл**
 
-```html
+````html
 <!DOCTYPE html>
 <html lang="uk">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Code guide — {{PROJECT}}</title>
+<title>Code guide</title>
 <style>
   /* Самодостатній стиль. Єдиний зовнішній ресурс — mermaid із cdnjs для L1/L2. */
   :root {
@@ -244,7 +222,6 @@ git commit -m "feat(code-visual-guide): add the worked example fixture"
   body { padding: 24px 16px; max-width: 1100px; margin: 0 auto; }
   h1 { font-size: 1.6rem; margin: 0 0 4px; }
   h2 { font-size: 1.2rem; margin: 28px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--line); }
-  h3 { font-size: 1.05rem; margin: 18px 0 6px; }
   .sub { color: var(--muted); margin: 0 0 12px; }
   .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; background: var(--bg-soft);
     border: 1px solid var(--line); font-size: .85em; margin-right: 4px; }
@@ -261,9 +238,8 @@ git commit -m "feat(code-visual-guide): add the worked example fixture"
   .swatch-structure { background: var(--structure); }
   .swatch-warn { background: var(--warn); }
   .callout { border-left: 4px solid var(--warn); background: #fff5f5; padding: 6px 10px; margin: 8px 0; border-radius: 4px; }
-  .callout-cycle { border-color: var(--warn); }
   .callout-orphan { border-color: var(--structure); background: var(--bg-soft); }
-  .callout-side-effect { border-color: var(--warn); }
+  .error { border: 2px solid var(--warn); background: #fff5f5; padding: 12px; border-radius: 6px; white-space: pre-wrap; }
   pre.mermaid { background: transparent; overflow-x: auto; }
   table.elements { border-collapse: collapse; width: 100%; font-size: .92em; }
   table.elements th, table.elements td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: top; }
@@ -291,704 +267,485 @@ git commit -m "feat(code-visual-guide): add the worked example fixture"
 </style>
 </head>
 <body>
-<header>
-  <h1>Code guide — {{PROJECT}}</h1>
-  <p class="sub">{{GENERATED}} · commit {{GIT_COMMIT}} · depth {{DEPTH}} · {{LANGS}}</p>
-</header>
+<div id="app"><p class="sub">Будую гайд…</p></div>
 
-<div class="legend" aria-label="Легенда">
+<!-- Дані гайда. Claude замінює плейсхолдер DATA у фігурних дужках нижче на JSON із code_guide_<sha8>.md. У JSON послідовність </ пишеться як <\/ -->
+<script id="guide-data" type="application/json">{{DATA}}</script>
+
+<script id="renderer">
+// Рендерер code-visual-guide. Єдине місце правди для форм і кольорів.
+// Працює в браузері (читає #guide-data) і в Node для тестів (document відсутній — boot не викликається).
+const CodeGuide = (function () {
+  "use strict";
+
+  const TYPES = ["data", "operation", "syntax_sugar", "structure"];
+  const COLORS = { data: "#3B82F6", const: "#1D4ED8", operation: "#10B981",
+                   syntax_sugar: "#F59E0B", structure: "#6B7280", warn: "#DC2626" };
+  const FLAG_KINDS = new Set(["async", "decorator", "optional_chaining"]);        // прапорець / трикутник
+  const HEX_KINDS = new Set(["spread", "destructuring", "comprehension", "lambda", "cte"]); // шестикутник
+  const DIAMOND_KINDS = new Set(["if", "loop"]);                                   // ромб
+  const ORDER_RE = /^f\d+$/;
+
+  class GuideError extends Error {}
+
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const mlabel = (s) => String(s).replace(/"/g, "#quot;");
+
+  // ---------------------------------------------------------------- validate
+  function require(obj, keys, where) {
+    const missing = keys.filter((k) => !(k in (obj || {})));
+    if (missing.length) throw new GuideError(`${where}: бракує полів ${missing.join(", ")}`);
+  }
+  function orderOk(o) {
+    return o === null || o === undefined || Number.isInteger(o) || (typeof o === "string" && ORDER_RE.test(o));
+  }
+  function validate(data) {
+    require(data, ["project", "generated", "languages", "depth", "l1", "files"], "верхній рівень");
+    require(data.l1, ["nodes", "edges"], "l1");
+    data.files.forEach((f, i) => {
+      require(f, ["path", "language", "elements"], `files[${i}]`);
+      f.elements.forEach((el, j) => {
+        let where = `files[${i}] ${f.path} -> elements[${j}]`;
+        require(el, ["type", "name", "explanation"], where);
+        where += ` (${el.name})`;
+        if (!TYPES.includes(el.type)) throw new GuideError(`${where}: невідомий type '${el.type}'; дозволено: ${TYPES.join(" | ")}`);
+        const words = String(el.explanation).trim().split(/\s+/).length;
+        if (words > 15) throw new GuideError(`${where}: explanation має ${words} слів, ліміт 15 — розбий елемент на два`);
+        if (!orderOk(el.order)) throw new GuideError(`${where}: order має бути числом, 'f<N>' або null, а не ${JSON.stringify(el.order)}`);
+      });
+      if (f.l3_fragment) require(f.l3_fragment, ["lines", "why_chosen", "full_code", "order_explanation"], `files[${i}] l3_fragment`);
+    });
+  }
+
+  // ----------------------------------------------------------------- Mermaid
+  function mermaidShape(el, label) {
+    const t = el.type, k = el.kind || "";
+    if (t === "data") return k === "const" ? `[["${label}"]]` : `(("${label}"))`;
+    if (t === "operation") return DIAMOND_KINDS.has(k) ? `{"${label}"}` : `["${label}"]`;
+    if (t === "syntax_sugar") return FLAG_KINDS.has(k) ? `>"${label}"]` : `{{"${label}"}}`;
+    return `["${label}"]`;
+  }
+  function classDefs() {
+    return [
+      `classDef data fill:${COLORS.data},color:#fff`,
+      `classDef const fill:${COLORS.const},color:#fff`,
+      `classDef operation fill:${COLORS.operation},color:#fff`,
+      `classDef syntax_sugar fill:${COLORS.syntax_sugar},color:#1a1a1a`,
+      `classDef structure fill:${COLORS.structure},color:#fff,stroke-dasharray:4 2`,
+      `classDef orphan fill:${COLORS.structure},color:#fff,stroke:${COLORS.warn},stroke-dasharray:4 2`,
+    ];
+  }
+  function mermaidL1(l1) {
+    const ids = new Map(l1.nodes.map((n, i) => [n.id, `n${i}`]));
+    const callouts = l1.callouts || [];
+    const orphans = new Set(callouts.filter((c) => c.kind === "orphan").map((c) => c.where));
+    const cycles = callouts.filter((c) => c.kind === "cycle").map((c) => c.where);
+    const lines = ["flowchart LR"];
+    for (const n of l1.nodes) {
+      const label = mlabel(n.id);
+      lines.push(`  ${ids.get(n.id)}${orphans.has(n.id) ? `(("${label}"))` : `["${label}"]`}`);
+    }
+    const red = [];
+    let idx = 0;
+    for (const e of l1.edges) {
+      if (!ids.has(e.from) || !ids.has(e.to)) continue;
+      lines.push(`  ${ids.get(e.from)} --> ${ids.get(e.to)}`);
+      if (cycles.some((w) => w.includes(e.from) && w.includes(e.to))) red.push(idx);
+      idx++;
+    }
+    lines.push(...classDefs().map((c) => "  " + c));
+    const plain = l1.nodes.filter((n) => !orphans.has(n.id)).map((n) => ids.get(n.id));
+    if (plain.length) lines.push(`  class ${plain.join(",")} structure`);
+    const orph = [...orphans].filter((o) => ids.has(o)).map((o) => ids.get(o));
+    if (orph.length) lines.push(`  class ${orph.join(",")} orphan`);
+    if (red.length) lines.push(`  linkStyle ${red.join(",")} stroke:${COLORS.warn},stroke-width:2px`);
+    return lines.join("\n");
+  }
+  function mermaidL2(f) {
+    const els = f.elements;
+    const byName = new Map();
+    els.forEach((el, i) => { if (!byName.has(el.name)) byName.set(el.name, `e${i}`); });
+    const lines = ["flowchart TD"];
+    els.forEach((el, i) => lines.push(`  e${i}${mermaidShape(el, mlabel(el.name))}`));
+    els.forEach((el, i) => (el.calls || []).forEach((t) => { if (byName.has(t)) lines.push(`  e${i} --> ${byName.get(t)}`); }));
+    lines.push(...classDefs().map((c) => "  " + c));
+    const groups = new Map();
+    els.forEach((el, i) => {
+      const cls = el.type === "data" && el.kind === "const" ? "const" : el.type;
+      if (!groups.has(cls)) groups.set(cls, []);
+      groups.get(cls).push(`e${i}`);
+    });
+    for (const [cls, members] of groups) lines.push(`  class ${members.join(",")} ${cls}`);
+    els.forEach((el, i) => { if (el.side_effect) lines.push(`  style e${i} stroke:${COLORS.warn},stroke-width:3px`); });
+    return lines.join("\n");
+  }
+
+  // ---------------------------------------------------------------- SVG L3
+  const orderKey = (o) => (Number.isInteger(o) ? [0, o] : [1, parseInt(String(o).slice(1), 10)]);
+  function svgShape(el, cx, cy) {
+    const t = el.type, k = el.kind || "";
+    const fill = t === "data" && k === "const" ? COLORS.const : COLORS[t];
+    const stroke = el.side_effect ? ` stroke="${COLORS.warn}" stroke-width="3"` : "";
+    if (t === "data") {
+      return k === "const"
+        ? `<rect x="${cx - 15}" y="${cy - 15}" width="30" height="30" fill="${fill}"${stroke}/>`
+        : `<circle cx="${cx}" cy="${cy}" r="16" fill="${fill}"${stroke}/>`;
+    }
+    if (t === "operation") {
+      return DIAMOND_KINDS.has(k)
+        ? `<polygon points="${cx},${cy - 18} ${cx + 18},${cy} ${cx},${cy + 18} ${cx - 18},${cy}" fill="${fill}"${stroke}/>`
+        : `<rect x="${cx - 20}" y="${cy - 14}" width="40" height="28" rx="4" fill="${fill}"${stroke}/>`;
+    }
+    if (t === "syntax_sugar") {
+      return FLAG_KINDS.has(k)
+        ? `<polygon class="sugar-tri" points="${cx - 18},${cy - 14} ${cx + 18},${cy - 14} ${cx},${cy + 16}" fill="${fill}"${stroke}/>`
+        : `<polygon class="sugar-hex" points="${cx},${cy - 18} ${cx + 16},${cy - 9} ${cx + 16},${cy + 9} ${cx},${cy + 18} ${cx - 16},${cy + 9} ${cx - 16},${cy - 9}" fill="${fill}"${stroke}/>`;
+    }
+    return `<rect x="${cx - 20}" y="${cy - 14}" width="40" height="28" fill="#fff" stroke="${fill}" stroke-dasharray="4 2" stroke-width="2"${stroke}/>`;
+  }
+  function svgStrip(f) {
+    const ordered = f.elements.filter((el) => el.order !== null && el.order !== undefined)
+      .sort((a, b) => { const [x, y] = [orderKey(a.order), orderKey(b.order)]; return x[0] - y[0] || x[1] - y[1]; });
+    const rows = [["модуль", ordered.filter((el) => Number.isInteger(el.order))],
+                  ["виклик", ordered.filter((el) => typeof el.order === "string")]].filter((r) => r[1].length);
+    if (!rows.length) return "";
+    const step = 72, left = 70, rowH = 92;
+    const width = left + step * Math.max(...rows.map((r) => r[1].length)) + 20;
+    const height = rowH * rows.length;
+    const out = [`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img">`,
+      `<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6470"/></marker></defs>`];
+    rows.forEach(([name, els], r) => {
+      const cy = r * rowH + 40;
+      out.push(`<text class="space" x="4" y="${cy + 4}">${esc(name)}</text>`);
+      els.forEach((el, i) => {
+        const cx = left + i * step;
+        if (i) out.push(`<line x1="${cx - step + 22}" y1="${cy}" x2="${cx - 24}" y2="${cy}" stroke="#5b6470" marker-end="url(#arr)"/>`);
+        const fill = el.type === "syntax_sugar" ? "#1a1a1a" : "#fff";
+        out.push(`<g><title>${esc(el.name + " — " + el.explanation)}</title>${svgShape(el, cx, cy)}` +
+          `<text x="${cx}" y="${cy + 4}" text-anchor="middle" fill="${fill}">${esc(el.order)}</text>` +
+          `<text class="label" x="${cx}" y="${cy + 34}" text-anchor="middle">${esc(String(el.name).slice(0, 14))}</text></g>`);
+      });
+    });
+    out.push("</svg>");
+    return out.join("");
+  }
+
+  // --------------------------------------------------------------- sections
+  const LINE_CLASS = { data: "line-data", operation: "line-operation", syntax_sugar: "line-sugar", structure: "line-structure" };
+  function codeBlock(f) {
+    const frag = f.l3_fragment;
+    const start = parseInt(String(frag.lines).split("-")[0], 10);
+    const byLine = new Map();
+    for (const el of f.elements) if (Number.isInteger(el.line) && el.order != null && !byLine.has(el.line)) byLine.set(el.line, el.type);
+    for (const el of f.elements) if (Number.isInteger(el.line) && !byLine.has(el.line)) byLine.set(el.line, el.type);
+    return `<div class="code">` + frag.full_code.split("\n").map((text, i) => {
+      const ln = start + i;
+      return `<div class="${LINE_CLASS[byLine.get(ln)] || ""}"><span class="ln">${ln}</span>${esc(text)}</div>`;
+    }).join("") + `</div>`;
+  }
+  function elementsTable(f) {
+    return `<table class="elements"><thead><tr><th>type</th><th>name</th><th>рядок</th><th>order</th><th>що робить</th></tr></thead><tbody>` +
+      f.elements.map((el) => `<tr><td class="t-${el.type}">${esc(el.type)}</td><td><code>${esc(el.name)}</code></td>` +
+        `<td>${esc(el.line ?? "")}</td><td>${el.order == null ? "—" : esc(el.order)}</td><td>${esc(el.explanation)}</td></tr>`).join("") +
+      `</tbody></table>`;
+  }
+  const callout = (kind, text) => `<div class="callout callout-${kind}">${esc(text)}</div>`;
+
+  function legend() {
+    return `<div class="legend" aria-label="Легенда">
   <span><i class="swatch-data"></i> DATA — літерали, змінні зі значеннями</span>
   <span><i class="swatch-const"></i> DATA/const — незмінні значення</span>
   <span><i class="swatch-operation"></i> OPERATION — функції, оператори, умови, цикли</span>
   <span><i class="swatch-sugar"></i> SYNTAX_SUGAR — скорочення мови, є розгорнутий еквівалент</span>
   <span><i class="swatch-structure"></i> STRUCTURE — імпорти, класи, типи: каркас, не логіка</span>
   <span><i class="swatch-warn"></i> ⚠️ side effect / цикл імпортів</span>
-</div>
+</div>`;
+  }
+  function header(data) {
+    const langs = data.languages.map((l) => `<span class="badge">${esc(l)}</span>`).join(" ");
+    return `<header><h1>Code guide — ${esc(data.project)}</h1>` +
+      `<p class="sub">${esc(data.generated)} · commit ${esc(data.git_commit || "—")} · depth ${esc(data.depth)} · ${langs}</p></header>`;
+  }
+  function l1Html(data) {
+    const l1 = data.l1;
+    const tree = l1.nodes.map((n) => `<li><code>${esc(n.id)}</code> — ${esc(n.summary || "")}</li>`).join("");
+    const callouts = (l1.callouts || []).map((c) => callout(c.kind || "cycle", `${c.where || ""}: ${c.note || ""}`)).join("");
+    return `<section id="l1"><h2>L1 — Проєкт</h2><details open><summary>Файли та залежності</summary><ul>${tree}</ul>${callouts}` +
+      `<pre class="mermaid">${esc(mermaidL1(l1))}</pre></details></section>`;
+  }
+  function l2Html(data) {
+    const note = data.l2_note ? `<p class="sub">${esc(data.l2_note)}</p>` : "";
+    const open = data.depth === 1 ? " open" : "";
+    return `<section id="l2"><h2>L2 — Файли</h2>${note}` + data.files.map((f) => {
+      const callouts = f.elements.filter((el) => el.side_effect).map((el) => callout("side-effect", `⚠️ ${el.name}: ${el.side_effect}`)).join("");
+      return `<details${open}><summary><code>${esc(f.path)}</code> · ${esc(f.language)}</summary>${callouts}${elementsTable(f)}` +
+        `<pre class="mermaid">${esc(mermaidL2(f))}</pre></details>`;
+    }).join("") + `</section>`;
+  }
+  function l3Html(data) {
+    const frags = data.files.filter((f) => f.l3_fragment);
+    const body = frags.length ? frags.map((f, n) => {
+      const frag = f.l3_fragment;
+      const eq = f.elements.filter((el) => el.equivalent).map((el) => `<li><code>${esc(el.name)}</code> → <code>${esc(el.equivalent)}</code></li>`).join("");
+      const rd = f.elements.filter((el) => el.reading).map((el) => `<li><code>${esc(el.name)}</code>: ${esc(el.reading)}</li>`).join("");
+      return `<details open><summary>Фрагмент №${n + 1} · <code>${esc(f.path)}</code> · рядки ${esc(frag.lines)} · обрано: ${esc(frag.why_chosen)}</summary>` +
+        `<div class="frag">${codeBlock(f)}<div class="strip">${svgStrip(f)}</div></div>` +
+        `<div class="why"><strong>Чому такий порядок:</strong> ${esc(frag.order_explanation)}</div>` +
+        (rd ? `<p><strong>Як читає мова:</strong></p><ul>${rd}</ul>` : "") +
+        (eq ? `<p><strong>Еквівалент без цукру:</strong></p><ul>${eq}</ul>` : "") + `</details>`;
+    }).join("") : `<p class="sub">L3 не будувався (depth 1).</p>`;
+    return `<section id="l3"><h2>L3 — Як читає мова</h2>${body}</section>`;
+  }
+  function teachback(data) {
+    const frags = data.files.filter((f) => f.l3_fragment);
+    if (!frags.length) return "Назви три файли, через які проходить головний сценарій, і скажи, що кожен віддає наступному.";
+    const n = frags.length > 1 ? 2 : 1, f = frags[n - 1];
+    return `Поясни своїми словами фрагмент №${n} (${f.path}, рядки ${f.l3_fragment.lines}): у якому порядку його виконує мова і чому.`;
+  }
+  function footer(data) {
+    return `<footer><p><strong>Перевір себе:</strong> ${esc(teachback(data))}</p>` +
+      `<p>Джерело гайда: <code>${esc(data.source_md || "code_guide_<sha8>.md")}</code>. Змінився код — перегенеруй, не прав HTML руками.</p></footer>`;
+  }
 
-<section id="l1">
-  <h2>L1 — Проєкт</h2>
-  {{L1}}
-</section>
+  // Повний HTML тіла для #app. Кидає GuideError, якщо дані невалідні.
+  function render(data) {
+    validate(data);
+    return header(data) + legend() + l1Html(data) + l2Html(data) + l3Html(data) + footer(data);
+  }
 
-<section id="l2">
-  <h2>L2 — Файли</h2>
-  {{L2}}
-</section>
+  // ------------------------------------------------------------------- boot
+  function boot() {
+    const app = document.getElementById("app");
+    let data;
+    try {
+      data = JSON.parse(document.getElementById("guide-data").textContent);
+      app.innerHTML = render(data);
+      document.title = `Code guide — ${data.project}`;
+    } catch (e) {
+      app.innerHTML = `<div class="error">Помилка гайда: ${esc(e.message)}</div>`;
+      return;
+    }
+    // Mermaid: в Artifact pre.mermaid може відрендерити хост; чекаємо, і лише якщо SVG так і не з'явився — рендеримо самі.
+    setTimeout(() => {
+      if (!window.mermaid || document.querySelector("pre.mermaid svg")) return;
+      window.mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+      window.mermaid.run({ querySelector: "pre.mermaid" });
+    }, 1500);
+  }
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+  }
 
-<section id="l3">
-  <h2>L3 — Як читає мова</h2>
-  {{L3}}
-</section>
-
-<footer>
-  <p><strong>Перевір себе:</strong> {{TEACHBACK}}</p>
-  <p>Джерело гайда: <code>{{MD_PATH}}</code>. Змінився код — перегенеруй, не прав HTML руками.</p>
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js"></script>
-<script>
-  // В Artifact блоки pre.mermaid рендеряться нативно — тоді не чіпаємо.
-  // Без інтернету window.mermaid відсутній — блоки лишаються текстом. Це не помилка.
-  (function () {
-    if (!window.mermaid) return;
-    if (document.querySelector('pre.mermaid svg')) return;
-    mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
-    mermaid.run({ querySelector: 'pre.mermaid' });
-  })();
+  return { TYPES, COLORS, GuideError, validate, mermaidL1, mermaidL2, svgStrip, render, teachback };
+})();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js"></script>
 </body>
 </html>
-```
+````
 
-- [ ] **Step 2: Перевірити, що плейсхолдерів рівно 10 і всі з дозволеного списку**
+- [ ] **Step 2: Перевірити плейсхолдери** — рівно один, і лише в тегу даних:
 
 ```bash
-grep -o "{{[A-Z_]*}}" skills/code-visual-guide/references/guide_template.html | sort -u
+grep -n -o "{{[A-Z_]*}}" skills/code-visual-guide/references/guide_template.html
 ```
 
-Expected — рівно ці рядки: `{{DEPTH}} {{GENERATED}} {{GIT_COMMIT}} {{L1}} {{L2}} {{L3}} {{LANGS}} {{MD_PATH}} {{PROJECT}} {{TEACHBACK}}` (PROJECT зустрічається двічі, `sort -u` лишає один).
+Expected: один рядок `{{DATA}}` на рядку з `id="guide-data"`. Другий збіг (типово в коментарі) —
+перефразувати коментар: тест у Task 3 це ловить.
 
 - [ ] **Step 3: Commit**
 
 ```bash
 git add skills/code-visual-guide/references/guide_template.html
-git commit -m "feat(code-visual-guide): add the self-contained HTML guide template"
+git commit -m "feat(code-visual-guide): add the self-rendering HTML guide template"
 ```
 
 ---
-### Task 3: Рендерер `render_guide.py` + тест (TDD)
+### Task 3: Тести рендерера на `node --test`
 
 **Files:**
-- Create: `skills/code-visual-guide/references/test_render_guide.py`
-- Create: `skills/code-visual-guide/references/render_guide.py`
-- Reads: `skills/code-visual-guide/references/worked_example.md` (Task 1), `guide_template.html` (Task 2)
+- Create: `skills/code-visual-guide/references/test_render_guide.mjs`
+- Reads: `guide_template.html` (Task 2), `worked_example.md` (Task 1)
 
 **Interfaces:**
-- Consumes: JSON-схему з Task 1 (ключі `project, generated, git_commit, root_path, languages, depth, l1{nodes,edges,callouts}, files[{path, language, elements[], l3_fragment{lines, why_chosen, full_code, order_explanation}}]`, опційно `l2_note` на верхньому рівні і `calls: [str]` в елементі) та плейсхолдери з Task 2.
-- Produces (публічний API модуля, на нього посилаються SKILL.md і тест):
-  - `class GuideError(Exception)`
-  - `extract_json(md_text: str) -> dict` — перший блок ` ```json `; немає → `GuideError`
-  - `validate(data: dict) -> None` — `GuideError` з людським текстом
-  - `render(data: dict, md_path: str) -> str` — повний HTML
-  - `main(argv: list[str]) -> int` — `0` ок, `2` помилка гайда, `1` помилка вводу-виводу
-  - Константи `TYPES`, `COLORS` — єдине місце правди для палітри
+- Consumes: `<script id="renderer">` із шаблону; глобал `CodeGuide` з полями
+  `TYPES, COLORS, GuideError, validate(data), mermaidL1(l1), mermaidL2(file), svgStrip(file),
+  render(data) -> string, teachback(data) -> string`; блок ` ```json ` із `worked_example.md`.
+- Produces: одна команда перевірки для того, хто править скіл:
+  `node --test skills/code-visual-guide/references/`. Учню Node не потрібен — рендер іде в браузері.
 
-- [ ] **Step 1: Написати тести на витяг і валідацію**
+Порядок TDD тут інвертований відносно звички «спершу тест»: шаблон із Task 2 уже написаний,
+бо його зміст (CSS, легенда) не виводиться з тестів. Тест фіксує контракт і ловить регресії
+при правках таблиці форм.
 
-`skills/code-visual-guide/references/test_render_guide.py`:
+- [ ] **Step 1: Написати тест**
 
-```python
-"""Тести рендерера code-visual-guide. Запуск: python test_render_guide.py"""
-import copy
-import json
-import sys
-import tempfile
-import unittest
-from pathlib import Path
+`skills/code-visual-guide/references/test_render_guide.mjs`:
 
-HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
-import render_guide as rg  # noqa: E402
+```js
+// Тести рендерера code-visual-guide. Запуск: node --test skills/code-visual-guide/references/
+// Рендерер живе всередині guide_template.html (<script id="renderer">); тест витягує його звідти,
+// тому джерело правди одне. Node потрібен лише тому, хто править скіл, не учню.
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
-EXAMPLE = HERE / "worked_example.md"
+const HERE = dirname(fileURLToPath(import.meta.url));
+const TEMPLATE = readFileSync(join(HERE, "guide_template.html"), "utf8");
+const EXAMPLE = readFileSync(join(HERE, "worked_example.md"), "utf8");
 
-
-def example_data():
-    return rg.extract_json(EXAMPLE.read_text(encoding="utf-8"))
-
-
-class ExtractJson(unittest.TestCase):
-    def test_reads_first_json_block_from_worked_example(self):
-        data = example_data()
-        self.assertEqual(data["project"], "shop")
-        self.assertEqual(len(data["files"][0]["elements"]), 12)
-
-    def test_missing_block_is_a_guide_error_naming_the_block(self):
-        with self.assertRaises(rg.GuideError) as cm:
-            rg.extract_json("# гайд без даних\n\nтекст")
-        self.assertIn("```json", str(cm.exception))
-
-    def test_broken_json_is_a_guide_error_not_a_traceback(self):
-        with self.assertRaises(rg.GuideError) as cm:
-            rg.extract_json("```json\n{\"project\": \n```")
-        self.assertIn("JSON", str(cm.exception))
-
-
-class Validate(unittest.TestCase):
-    def setUp(self):
-        self.data = example_data()
-
-    def test_worked_example_is_valid(self):
-        rg.validate(self.data)  # не кидає
-
-    def test_unknown_type_is_rejected_with_allowed_list(self):
-        self.data["files"][0]["elements"][0]["type"] = "helper"
-        with self.assertRaises(rg.GuideError) as cm:
-            rg.validate(self.data)
-        msg = str(cm.exception)
-        self.assertIn("helper", msg)
-        self.assertIn("data | operation | syntax_sugar | structure", msg)
-
-    def test_explanation_over_15_words_is_rejected(self):
-        self.data["files"][0]["elements"][1]["explanation"] = " ".join(["слово"] * 16)
-        with self.assertRaises(rg.GuideError) as cm:
-            rg.validate(self.data)
-        self.assertIn("15", str(cm.exception))
-        self.assertIn("calculateTotal", str(cm.exception))
-
-    def test_missing_top_level_key_is_named(self):
-        del self.data["files"]
-        with self.assertRaises(rg.GuideError) as cm:
-            rg.validate(self.data)
-        self.assertIn("files", str(cm.exception))
-
-    def test_bad_order_format_is_rejected(self):
-        self.data["files"][0]["elements"][5]["order"] = "step1"
-        with self.assertRaises(rg.GuideError) as cm:
-            rg.validate(self.data)
-        self.assertIn("order", str(cm.exception))
-
-
-if __name__ == "__main__":
-    unittest.main(verbosity=1)
-```
-
-- [ ] **Step 2: Запустити — має впасти на імпорті**
-
-```bash
-python skills/code-visual-guide/references/test_render_guide.py
-```
-
-Expected: `ModuleNotFoundError: No module named 'render_guide'`.
-
-- [ ] **Step 3: Написати витяг і валідацію**
-
-`skills/code-visual-guide/references/render_guide.py` (перша частина; рендер додається в Step 7):
-
-```python
-#!/usr/bin/env python3
-"""render_guide.py — рендерить code_guide_<sha8>.md у самодостатній HTML.
-
-Використання:
-    python render_guide.py <code_guide.md> <out.html>
-
-Тільки stdlib. Дані — перший блок ```json у .md. Форми й кольори живуть у цьому файлі
-(COLORS, *_KINDS) — це єдине місце правди; модель не малює, вона дає дані.
-"""
-from __future__ import annotations
-
-import html
-import json
-import re
-import sys
-from pathlib import Path
-
-HERE = Path(__file__).resolve().parent
-TEMPLATE = HERE / "guide_template.html"
-
-TYPES = ("data", "operation", "syntax_sugar", "structure")
-TYPES_HUMAN = " | ".join(TYPES)
-
-COLORS = {
-    "data": "#3B82F6",
-    "const": "#1D4ED8",
-    "operation": "#10B981",
-    "syntax_sugar": "#F59E0B",
-    "structure": "#6B7280",
-    "warn": "#DC2626",
+function loadRenderer() {
+  const m = TEMPLATE.match(/<script id="renderer">([\s\S]*?)<\/script>/);
+  assert.ok(m, "у шаблоні немає <script id=\"renderer\">");
+  return new Function(m[1] + "\nreturn CodeGuide;")();
 }
+function exampleData() {
+  const m = EXAMPLE.match(/```json[ \t]*\r?\n([\s\S]*?)\r?\n```/);
+  assert.ok(m, "у worked_example.md немає блоку ```json");
+  return JSON.parse(m[1]);
+}
+const CG = loadRenderer();
 
-# Форми за kind. Усе інше в межах типу — форма за замовчуванням.
-FLAG_KINDS = {"async", "decorator", "optional_chaining"}          # прапорець / трикутник
-HEX_KINDS = {"spread", "destructuring", "comprehension", "lambda", "cte"}  # шестикутник
-DIAMOND_KINDS = {"if", "loop"}                                    # ромб
+// --- фікстура і шаблон ---------------------------------------------------------
+test("worked_example має 12 елементів і валідний", () => {
+  const data = exampleData();
+  assert.equal(data.files[0].elements.length, 12);
+  CG.validate(data);
+});
+test("шаблон має рівно один плейсхолдер — {{DATA}}", () => {
+  const placeholders = [...TEMPLATE.matchAll(/\{\{[A-Z_]+\}\}/g)].map((m) => m[0]);
+  assert.deepEqual(placeholders, ["{{DATA}}"]);
+});
+test("вставка JSON у шаблон лишає файл без плейсхолдерів", () => {
+  const json = JSON.stringify(exampleData()).replace(/<\//g, "<\\/");
+  const out = TEMPLATE.replace("{{DATA}}", json);
+  assert.doesNotMatch(out, /\{\{[A-Z_]+\}\}/);
+  assert.match(out, /"project":"shop"/);
+});
 
-ORDER_RE = re.compile(r"^f\d+$")
-JSON_BLOCK_RE = re.compile(r"```json[ \t]*\r?\n(.*?)\r?\n```", re.S)
+// --- валідація ------------------------------------------------------------------
+test("невідомий type відхиляється з переліком дозволених", () => {
+  const d = exampleData(); d.files[0].elements[0].type = "helper";
+  assert.throws(() => CG.validate(d), (e) => e instanceof CG.GuideError && /helper/.test(e.message) && /data \| operation \| syntax_sugar \| structure/.test(e.message));
+});
+test("explanation понад 15 слів відхиляється з назвою елемента", () => {
+  const d = exampleData(); d.files[0].elements[1].explanation = Array(16).fill("слово").join(" ");
+  assert.throws(() => CG.validate(d), /15/);
+  assert.throws(() => CG.validate(d), /calculateTotal/);
+});
+test("відсутнє поле верхнього рівня називається", () => {
+  const d = exampleData(); delete d.files;
+  assert.throws(() => CG.validate(d), /files/);
+});
+test("order у чужому форматі відхиляється", () => {
+  const d = exampleData(); d.files[0].elements[5].order = "step1";
+  assert.throws(() => CG.validate(d), /order/);
+});
 
-
-class GuideError(Exception):
-    """Помилка в даних гайда. Текст призначений людині, не трейсбеку."""
-
-
-def extract_json(md_text: str) -> dict:
-    m = JSON_BLOCK_RE.search(md_text)
-    if not m:
-        raise GuideError("у файлі немає блоку ```json з даними гайда")
-    try:
-        return json.loads(m.group(1))
-    except json.JSONDecodeError as e:
-        raise GuideError(f"блок ```json не читається як JSON: {e.msg} (рядок {e.lineno})") from None
-
-
-def _require(obj: dict, keys: tuple, where: str) -> None:
-    missing = [k for k in keys if k not in obj]
-    if missing:
-        raise GuideError(f"{where}: бракує полів {', '.join(missing)}")
-
-
-def _order_ok(order) -> bool:
-    return order is None or isinstance(order, int) or (isinstance(order, str) and ORDER_RE.match(order))
-
-
-def validate(data: dict) -> None:
-    _require(data, ("project", "generated", "languages", "depth", "l1", "files"), "верхній рівень")
-    _require(data["l1"], ("nodes", "edges"), "l1")
-    for i, f in enumerate(data["files"]):
-        _require(f, ("path", "language", "elements"), f"files[{i}]")
-        for j, el in enumerate(f["elements"]):
-            where = f"files[{i}] {f['path']} -> elements[{j}]"  # ASCII: консоль Windows не завжди друкує стрілки
-            _require(el, ("type", "name", "explanation"), where)
-            where += f" ({el['name']})"
-            if el["type"] not in TYPES:
-                raise GuideError(f"{where}: невідомий type '{el['type']}'; дозволено: {TYPES_HUMAN}")
-            words = len(el["explanation"].split())
-            if words > 15:
-                raise GuideError(f"{where}: explanation має {words} слів, ліміт 15 — розбий елемент на два")
-            if not _order_ok(el.get("order")):
-                raise GuideError(f"{where}: order має бути числом, 'f<N>' або null, а не {el.get('order')!r}")
-        frag = f.get("l3_fragment")
-        if frag is not None:
-            _require(frag, ("lines", "why_chosen", "full_code", "order_explanation"), f"files[{i}] l3_fragment")
+// --- рендер -----------------------------------------------------------------------
+const html = CG.render(exampleData());
+test("усі п'ять кольорів палітри присутні", () => {
+  for (const c of ["#3B82F6", "#10B981", "#F59E0B", "#6B7280", "#DC2626"]) assert.ok(html.includes(c), c);
+});
+test("один Mermaid-блок на L1 і по одному на файл", () => {
+  assert.equal(html.split('<pre class="mermaid">').length - 1, 1 + exampleData().files.length);
+});
+test("Mermaid стилізує через classDef усередині діаграми", () => {
+  assert.match(html, /classDef structure/);
+  assert.match(html, /classDef operation/);
+});
+test("по одній SVG-стрічці на фрагмент, з обома просторами нумерації", () => {
+  const frags = exampleData().files.filter((f) => f.l3_fragment).length;
+  assert.equal(html.split("<svg").length - 1, frags);
+  assert.ok(html.includes(">1<"), "① модуль");
+  assert.ok(html.includes(">f3<"), "тіло функції");
+});
+test("цукор малюється трикутником і шестикутником", () => {
+  assert.match(html, /<polygon class="sugar-tri" points="[^"]+"/);
+  assert.match(html, /<polygon class="sugar-hex" points="[^"]+"/);
+});
+test("рядки коду пронумеровані й підсвічені за типом", () => {
+  assert.ok(html.includes('<span class="ln">1</span>'));
+  assert.ok(html.includes('class="line-structure"'));
+  assert.ok(html.includes('class="line-operation"'));
+});
+test("еквіваленти цукру виведені", () => {
+  assert.ok(html.includes("Promise.resolve"));
+});
+test("side effect дає червону рамку і callout", () => {
+  const d = exampleData(); d.files[0].elements[1].side_effect = "пише в консоль";
+  const out = CG.render(d);
+  assert.ok(out.includes("callout-side-effect"));
+  assert.ok(out.includes("stroke:#DC2626"));
+});
+test("цикл імпортів дає callout і червоне ребро", () => {
+  const d = exampleData();
+  d.l1.edges.push({ from: "src/types.ts", to: "src/checkout.ts" });
+  d.l1.callouts.push({ kind: "cycle", where: "src/checkout.ts -> src/types.ts", note: "Цикл імпортів." });
+  const out = CG.render(d);
+  assert.ok(out.includes("callout-cycle"));
+  assert.ok(CG.mermaidL1(d.l1).includes("linkStyle"));
+});
+test("сирота малюється пунктирним колом", () => {
+  const d = exampleData();
+  d.l1.nodes.push({ id: "src/unused.ts", kind: "file", summary: "Ніхто не імпортує." });
+  d.l1.callouts.push({ kind: "orphan", where: "src/unused.ts", note: "Сирота." });
+  assert.ok(CG.render(d).includes("callout-orphan"));
+  assert.ok(CG.mermaidL1(d.l1).includes('(("src/unused.ts"))'));
+});
+test("l2_note показується, коли є", () => {
+  const d = exampleData(); d.l2_note = "L2 показано для 1 з 2 файлів: entry, хаби.";
+  assert.ok(CG.render(d).includes("L2 показано для 1 з 2"));
+});
+test("HTML екранується", () => {
+  const d = exampleData(); d.files[0].elements[0].explanation = "<script>alert(1)</script>";
+  const out = CG.render(d);
+  assert.ok(!out.includes("<script>alert"));
+  assert.ok(out.includes("&lt;script&gt;"));
+});
+test("depth 1 без фрагментів дає підпис замість L3 і загальний teach-back", () => {
+  const d = exampleData(); d.depth = 1; delete d.files[0].l3_fragment;
+  const out = CG.render(d);
+  assert.ok(out.includes("L3 не будувався"));
+  assert.match(CG.teachback(d), /три файли/);
+});
 ```
 
-- [ ] **Step 4: Запустити тести витягу й валідації — мають пройти**
+- [ ] **Step 2: Запустити**
 
 ```bash
-python skills/code-visual-guide/references/test_render_guide.py
+node --test skills/code-visual-guide/references/
 ```
 
-Expected: `Ran 8 tests ... OK`.
+Expected: `# tests 20`, `# pass 20`, `# fail 0`. Якщо падає «шаблон має рівно один
+плейсхолдер» — у шаблоні десь, крім `<script id="guide-data">`, написано `{{DATA}}` буквально
+(типово — у коментарі); перефразувати коментар.
 
-- [ ] **Step 5: Commit проміжний**
+- [ ] **Step 3: Зібрати HTML із фікстури й подивитись очима**
 
 ```bash
-git add skills/code-visual-guide/references/render_guide.py skills/code-visual-guide/references/test_render_guide.py
-git commit -m "feat(code-visual-guide): read and validate guide data"
+node -e '
+const fs=require("fs");
+const t=fs.readFileSync("skills/code-visual-guide/references/guide_template.html","utf8");
+const md=fs.readFileSync("skills/code-visual-guide/references/worked_example.md","utf8");
+const json=md.match(/```json[ \t]*\r?\n([\s\S]*?)\r?\n```/)[1].replace(/<\//g,"<\\/");
+fs.writeFileSync(process.env.TEMP+"/guide_check.html", t.replace("{{DATA}}", json));
+' && start "" "$TEMP/guide_check.html"
 ```
 
-- [ ] **Step 6: Дописати тести на рендер** (додати в `test_render_guide.py` перед `if __name__`)
+Перевірити руками: легенда; L1 і L2 діаграми (потрібен інтернет); L3 — код зліва, стрічка
+справа з рядами «модуль» (1 2 3) і «виклик» (f1…f8); на ширині ~400px стрічка під кодом,
+без горизонтального скролу сторінки. Без інтернету: L1/L2 — текст, L3 на місці. Зламай JSON
+(прибери кому) і перезавантаж: замість гайда червоний блок «Помилка гайда: …», не порожня
+сторінка.
 
-```python
-class Render(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.data = example_data()
-        cls.html = rg.render(cls.data, md_path="code/shop/code_guide_deadbeef.md")
-
-    def test_all_five_palette_colors_present(self):
-        for color in ("#3B82F6", "#10B981", "#F59E0B", "#6B7280", "#DC2626"):
-            self.assertIn(color, self.html)
-
-    def test_one_mermaid_block_for_l1_and_one_per_file(self):
-        self.assertEqual(self.html.count('<pre class="mermaid">'), 1 + len(self.data["files"]))
-
-    def test_mermaid_uses_classdef_not_external_css(self):
-        self.assertIn("classDef structure", self.html)
-        self.assertIn("classDef operation", self.html)
-
-    def test_one_svg_strip_per_fragment_with_both_order_spaces(self):
-        fragments = [f for f in self.data["files"] if f.get("l3_fragment")]
-        self.assertEqual(self.html.count("<svg"), len(fragments))
-        self.assertIn(">1<", self.html)    # ① модуль
-        self.assertIn(">f3<", self.html)   # тіло функції
-
-    def test_sugar_elements_get_polygon_shapes(self):
-        # async → трикутник (3 точки), lambda → шестикутник (6 точок)
-        self.assertRegex(self.html, r'<polygon class="sugar-tri" points="[^"]+"')
-        self.assertRegex(self.html, r'<polygon class="sugar-hex" points="[^"]+"')
-
-    def test_no_placeholder_left(self):
-        # {{"…"}} — це Mermaid-шестикутник, тому шукаємо саме {{ВЕЛИКІ_ЛІТЕРИ}}
-        self.assertNotRegex(self.html, r"\{\{[A-Z_]+\}\}")
-
-    def test_code_lines_are_numbered_and_colored(self):
-        self.assertIn('<span class="ln">1</span>', self.html)
-        self.assertIn('class="line-structure"', self.html)
-        self.assertIn('class="line-operation"', self.html)
-
-    def test_equivalents_listed_for_sugar(self):
-        self.assertIn("Promise.resolve", self.html)
-
-    def test_side_effect_marks_element_red_and_adds_callout(self):
-        data = copy.deepcopy(self.data)
-        data["files"][0]["elements"][1]["side_effect"] = "пише в консоль"
-        out = rg.render(data, md_path="x.md")
-        self.assertIn("callout-side-effect", out)
-        self.assertIn("stroke:#DC2626", out)
-
-    def test_cycle_callout_rendered_and_edge_colored(self):
-        data = copy.deepcopy(self.data)
-        data["l1"]["edges"].append({"from": "src/types.ts", "to": "src/checkout.ts"})
-        data["l1"]["callouts"].append({"kind": "cycle", "where": "src/checkout.ts -> src/types.ts", "note": "Цикл імпортів."})
-        out = rg.render(data, md_path="x.md")
-        self.assertIn("callout-cycle", out)
-        self.assertIn("linkStyle", out)
-
-    def test_orphan_callout_uses_dashed_circle(self):
-        data = copy.deepcopy(self.data)
-        data["l1"]["nodes"].append({"id": "src/unused.ts", "kind": "file", "summary": "Ніхто не імпортує."})
-        data["l1"]["callouts"].append({"kind": "orphan", "where": "src/unused.ts", "note": "Сирота."})
-        out = rg.render(data, md_path="x.md")
-        self.assertIn("callout-orphan", out)
-        self.assertIn('(("src/unused.ts"))', rg.mermaid_l1(data["l1"]))
-
-    def test_l2_note_is_shown_when_present(self):
-        data = copy.deepcopy(self.data)
-        data["l2_note"] = "L2 показано для 1 з 2 файлів: entry, хаби."
-        self.assertIn("L2 показано для 1 з 2", rg.render(data, md_path="x.md"))
-
-    def test_html_is_escaped(self):
-        data = copy.deepcopy(self.data)
-        data["files"][0]["elements"][0]["explanation"] = "<script>alert(1)</script>"
-        out = rg.render(data, md_path="x.md")
-        self.assertNotIn("<script>alert", out)
-        self.assertIn("&lt;script&gt;", out)
-
-
-class Cli(unittest.TestCase):
-    def test_writes_html_file_and_returns_zero(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp) / "guide.html"
-            code = rg.main([str(EXAMPLE), str(out)])
-            self.assertEqual(code, 0)
-            self.assertIn("shop", out.read_text(encoding="utf-8"))
-
-    def test_guide_error_returns_two_and_no_file(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            bad = Path(tmp) / "bad.md"
-            bad.write_text("# нічого", encoding="utf-8")
-            out = Path(tmp) / "guide.html"
-            self.assertEqual(rg.main([str(bad), str(out)]), 2)
-            self.assertFalse(out.exists())
-
-    def test_missing_input_returns_one(self):
-        self.assertEqual(rg.main(["/no/such/file.md", "/tmp/x.html"]), 1)
-```
-
-- [ ] **Step 7: Запустити — рендер-тести падають на `AttributeError: render`**
+- [ ] **Step 4: Commit**
 
 ```bash
-python skills/code-visual-guide/references/test_render_guide.py
-```
-
-Expected: 8 OK, решта ERROR з `module 'render_guide' has no attribute 'render'`.
-
-- [ ] **Step 8: Дописати рендер** (додати в кінець `render_guide.py`)
-
-```python
-# ----------------------------------------------------------------- Mermaid
-
-def _mlabel(text: str) -> str:
-    """Підпис вузла Mermaid у лапках: лапки → #quot;, решту не чіпаємо."""
-    return str(text).replace('"', "#quot;")
-
-
-def _mermaid_shape(el: dict, label: str) -> str:
-    t, k = el["type"], el.get("kind", "")
-    if t == "data":
-        return f'[["{label}"]]' if k == "const" else f'(("{label}"))'
-    if t == "operation":
-        return f'{{"{label}"}}' if k in DIAMOND_KINDS else f'["{label}"]'
-    if t == "syntax_sugar":
-        return f'>"{label}"]' if k in FLAG_KINDS else f'{{{{"{label}"}}}}'
-    return f'["{label}"]'  # structure
-
-
-def _classdefs() -> list[str]:
-    return [
-        f"classDef data fill:{COLORS['data']},color:#fff",
-        f"classDef const fill:{COLORS['const']},color:#fff",
-        f"classDef operation fill:{COLORS['operation']},color:#fff",
-        f"classDef syntax_sugar fill:{COLORS['syntax_sugar']},color:#1a1a1a",
-        f"classDef structure fill:{COLORS['structure']},color:#fff,stroke-dasharray:4 2",
-        f"classDef orphan fill:{COLORS['structure']},color:#fff,stroke:{COLORS['warn']},stroke-dasharray:4 2",
-    ]
-
-
-def mermaid_l1(l1: dict) -> str:
-    ids = {n["id"]: f"n{i}" for i, n in enumerate(l1["nodes"])}
-    callouts = l1.get("callouts", [])
-    orphans = {c["where"] for c in callouts if c.get("kind") == "orphan"}
-    cycles = [c["where"] for c in callouts if c.get("kind") == "cycle"]
-    lines = ["flowchart LR"]
-    for n in l1["nodes"]:
-        label = _mlabel(n["id"])
-        shape = f'(("{label}"))' if n["id"] in orphans else f'["{label}"]'
-        lines.append(f"  {ids[n['id']]}{shape}")
-    red_edges = []
-    for idx, e in enumerate(l1["edges"]):
-        if e["from"] not in ids or e["to"] not in ids:
-            continue
-        lines.append(f"  {ids[e['from']]} --> {ids[e['to']]}")
-        if any(e["from"] in w and e["to"] in w for w in cycles):
-            red_edges.append(str(idx))
-    lines += ["  " + c for c in _classdefs()]
-    plain = [ids[n["id"]] for n in l1["nodes"] if n["id"] not in orphans]
-    if plain:
-        lines.append(f"  class {','.join(plain)} structure")
-    if orphans:
-        lines.append(f"  class {','.join(ids[o] for o in orphans if o in ids)} orphan")
-    if red_edges:
-        lines.append(f"  linkStyle {','.join(red_edges)} stroke:{COLORS['warn']},stroke-width:2px")
-    return "\n".join(lines)
-
-
-def mermaid_l2(f: dict) -> str:
-    els = f["elements"]
-    ids = {i: f"e{i}" for i in range(len(els))}
-    by_name = {}
-    for i, el in enumerate(els):
-        by_name.setdefault(el["name"], ids[i])
-    lines = ["flowchart TD"]
-    for i, el in enumerate(els):
-        lines.append(f"  {ids[i]}{_mermaid_shape(el, _mlabel(el['name']))}")
-    for i, el in enumerate(els):
-        for target in el.get("calls") or []:
-            if target in by_name:
-                lines.append(f"  {ids[i]} --> {by_name[target]}")
-    lines += ["  " + c for c in _classdefs()]
-    groups: dict[str, list[str]] = {}
-    for i, el in enumerate(els):
-        cls = "const" if el["type"] == "data" and el.get("kind") == "const" else el["type"]
-        groups.setdefault(cls, []).append(ids[i])
-    for cls, members in groups.items():
-        lines.append(f"  class {','.join(members)} {cls}")
-    for i, el in enumerate(els):
-        if el.get("side_effect"):
-            lines.append(f"  style {ids[i]} stroke:{COLORS['warn']},stroke-width:3px")
-    return "\n".join(lines)
-
-
-# --------------------------------------------------------------------- SVG L3
-
-def _order_key(order):
-    if isinstance(order, int):
-        return (0, order)
-    return (1, int(order[1:]))
-
-
-def _svg_shape(el: dict, cx: int, cy: int) -> str:
-    t, k = el["type"], el.get("kind", "")
-    fill = COLORS["const"] if (t == "data" and k == "const") else COLORS[t]
-    stroke = f' stroke="{COLORS["warn"]}" stroke-width="3"' if el.get("side_effect") else ""
-    if t == "data":
-        if k == "const":
-            return f'<rect x="{cx-15}" y="{cy-15}" width="30" height="30" fill="{fill}"{stroke}/>'
-        return f'<circle cx="{cx}" cy="{cy}" r="16" fill="{fill}"{stroke}/>'
-    if t == "operation":
-        if k in DIAMOND_KINDS:
-            pts = f"{cx},{cy-18} {cx+18},{cy} {cx},{cy+18} {cx-18},{cy}"
-            return f'<polygon points="{pts}" fill="{fill}"{stroke}/>'
-        return f'<rect x="{cx-20}" y="{cy-14}" width="40" height="28" rx="4" fill="{fill}"{stroke}/>'
-    if t == "syntax_sugar":
-        if k in FLAG_KINDS:
-            pts = f"{cx-18},{cy-14} {cx+18},{cy-14} {cx},{cy+16}"
-            return f'<polygon class="sugar-tri" points="{pts}" fill="{fill}"{stroke}/>'
-        pts = f"{cx},{cy-18} {cx+16},{cy-9} {cx+16},{cy+9} {cx},{cy+18} {cx-16},{cy+9} {cx-16},{cy-9}"
-        return f'<polygon class="sugar-hex" points="{pts}" fill="{fill}"{stroke}/>'
-    return (f'<rect x="{cx-20}" y="{cy-14}" width="40" height="28" fill="#fff" '
-            f'stroke="{fill}" stroke-dasharray="4 2" stroke-width="2"{stroke}/>')
-
-
-def svg_strip(f: dict) -> str:
-    ordered = sorted((el for el in f["elements"] if el.get("order") is not None),
-                     key=lambda el: _order_key(el["order"]))
-    rows = [("модуль", [el for el in ordered if isinstance(el["order"], int)]),
-            ("виклик", [el for el in ordered if isinstance(el["order"], str)])]
-    rows = [r for r in rows if r[1]]
-    step, left, row_h = 72, 70, 92
-    width = left + step * max(len(r[1]) for r in rows) + 20
-    height = row_h * len(rows)
-    out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
-           f'width="{width}" height="{height}" role="img">',
-           '<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">'
-           '<path d="M0,0 L8,4 L0,8 z" fill="#5b6470"/></marker></defs>']
-    for r, (name, els) in enumerate(rows):
-        cy = r * row_h + 40
-        out.append(f'<text class="space" x="4" y="{cy+4}">{html.escape(name)}</text>')
-        for i, el in enumerate(els):
-            cx = left + i * step
-            if i:
-                out.append(f'<line x1="{cx-step+22}" y1="{cy}" x2="{cx-24}" y2="{cy}" '
-                           f'stroke="#5b6470" marker-end="url(#arr)"/>')
-            title = html.escape(f"{el['name']} — {el['explanation']}")
-            fill = "#1a1a1a" if el["type"] == "syntax_sugar" else "#fff"
-            label = html.escape(str(el["name"])[:14])
-            out.append(f"<g><title>{title}</title>{_svg_shape(el, cx, cy)}"
-                       f'<text x="{cx}" y="{cy+4}" text-anchor="middle" fill="{fill}">{el["order"]}</text>'
-                       f'<text class="label" x="{cx}" y="{cy+34}" text-anchor="middle">{label}</text></g>')
-    out.append("</svg>")
-    return "".join(out)
-
-
-# ---------------------------------------------------------------- HTML parts
-
-_LINE_CLASS = {"data": "line-data", "operation": "line-operation",
-               "syntax_sugar": "line-sugar", "structure": "line-structure"}
-
-
-def _code_block(f: dict) -> str:
-    frag = f["l3_fragment"]
-    start = int(str(frag["lines"]).split("-")[0])
-    by_line: dict[int, str] = {}
-    for el in f["elements"]:
-        ln = el.get("line")
-        if isinstance(ln, int) and ln not in by_line and el.get("order") is not None:
-            by_line[ln] = el["type"]
-    for el in f["elements"]:
-        ln = el.get("line")
-        if isinstance(ln, int) and ln not in by_line:
-            by_line[ln] = el["type"]
-    rows = []
-    for i, text in enumerate(frag["full_code"].split("\n")):
-        ln = start + i
-        cls = _LINE_CLASS.get(by_line.get(ln, ""), "")
-        rows.append(f'<div class="{cls}"><span class="ln">{ln}</span>{html.escape(text)}</div>')
-    return '<div class="code">' + "".join(rows) + "</div>"
-
-
-def _elements_table(f: dict) -> str:
-    rows = []
-    for el in f["elements"]:
-        rows.append(
-            f'<tr><td class="t-{el["type"]}">{html.escape(el["type"])}</td>'
-            f"<td><code>{html.escape(str(el['name']))}</code></td>"
-            f"<td>{html.escape(str(el.get('line', '')))}</td>"
-            f"<td>{html.escape(str(el.get('order', '') if el.get('order') is not None else '—'))}</td>"
-            f"<td>{html.escape(el['explanation'])}</td></tr>")
-    return ('<table class="elements"><thead><tr><th>type</th><th>name</th><th>рядок</th>'
-            '<th>order</th><th>що робить</th></tr></thead><tbody>' + "".join(rows) + "</tbody></table>")
-
-
-def _callout(kind: str, text: str) -> str:
-    return f'<div class="callout callout-{kind}">{html.escape(text)}</div>'
-
-
-def _l1_html(data: dict) -> str:
-    l1 = data["l1"]
-    tree = "".join(f"<li><code>{html.escape(n['id'])}</code> — {html.escape(n.get('summary', ''))}</li>"
-                   for n in l1["nodes"])
-    callouts = "".join(_callout(c.get("kind", "cycle"), f"{c.get('where', '')}: {c.get('note', '')}")
-                       for c in l1.get("callouts", []))
-    return (f"<details open><summary>Файли та залежності</summary><ul>{tree}</ul>{callouts}"
-            f'<pre class="mermaid">{html.escape(mermaid_l1(l1))}</pre></details>')
-
-
-def _l2_html(data: dict) -> str:
-    parts = []
-    note = data.get("l2_note")
-    if note:
-        parts.append(f'<p class="sub">{html.escape(note)}</p>')
-    open_attr = " open" if data.get("depth") == 1 else ""
-    for f in data["files"]:
-        callouts = "".join(_callout("side-effect", f"⚠️ {el['name']}: {el['side_effect']}")
-                           for el in f["elements"] if el.get("side_effect"))
-        parts.append(
-            f"<details{open_attr}><summary><code>{html.escape(f['path'])}</code> · {html.escape(f['language'])}</summary>"
-            f"{callouts}{_elements_table(f)}"
-            f'<pre class="mermaid">{html.escape(mermaid_l2(f))}</pre></details>')
-    return "".join(parts)
-
-
-def _l3_html(data: dict) -> str:
-    parts = []
-    for n, f in enumerate(fr for fr in data["files"] if fr.get("l3_fragment")):
-        frag = f["l3_fragment"]
-        equivalents = "".join(
-            f"<li><code>{html.escape(str(el['name']))}</code> → <code>{html.escape(el['equivalent'])}</code></li>"
-            for el in f["elements"] if el.get("equivalent"))
-        readings = "".join(
-            f"<li><code>{html.escape(str(el['name']))}</code>: {html.escape(el['reading'])}</li>"
-            for el in f["elements"] if el.get("reading"))
-        parts.append(
-            f"<details open><summary>Фрагмент №{n+1} · <code>{html.escape(f['path'])}</code> · рядки {html.escape(str(frag['lines']))} · обрано: {html.escape(frag['why_chosen'])}</summary>"
-            f'<div class="frag">{_code_block(f)}<div class="strip">{svg_strip(f)}</div></div>'
-            f'<div class="why"><strong>Чому такий порядок:</strong> {html.escape(frag["order_explanation"])}</div>'
-            + (f"<p><strong>Як читає мова:</strong></p><ul>{readings}</ul>" if readings else "")
-            + (f"<p><strong>Еквівалент без цукру:</strong></p><ul>{equivalents}</ul>" if equivalents else "")
-            + "</details>")
-    return "".join(parts) or "<p class=\"sub\">L3 не будувався (depth 1).</p>"
-
-
-def _teachback(data: dict) -> str:
-    frags = [f for f in data["files"] if f.get("l3_fragment")]
-    if not frags:
-        return "Назви три файли, через які проходить головний сценарій, і скажи, що кожен віддає наступному."
-    f = frags[1] if len(frags) > 1 else frags[0]
-    return (f"Поясни своїми словами фрагмент №{2 if len(frags) > 1 else 1} "
-            f"({f['path']}, рядки {f['l3_fragment']['lines']}): у якому порядку його виконує мова і чому.")
-
-
-def render(data: dict, md_path: str) -> str:
-    validate(data)
-    tpl = TEMPLATE.read_text(encoding="utf-8")
-    langs = " ".join(f'<span class="badge">{html.escape(l)}</span>' for l in data["languages"])
-    fills = {
-        "{{PROJECT}}": html.escape(str(data["project"])),
-        "{{GENERATED}}": html.escape(str(data["generated"])),
-        "{{GIT_COMMIT}}": html.escape(str(data.get("git_commit") or "—")),
-        "{{DEPTH}}": html.escape(str(data["depth"])),
-        "{{LANGS}}": langs,
-        "{{L1}}": _l1_html(data),
-        "{{L2}}": _l2_html(data),
-        "{{L3}}": _l3_html(data),
-        "{{TEACHBACK}}": html.escape(_teachback(data)),
-        "{{MD_PATH}}": html.escape(md_path),
-    }
-    for key, value in fills.items():
-        tpl = tpl.replace(key, value)
-    return tpl
-
-
-# ---------------------------------------------------------------------- CLI
-
-def main(argv: list[str]) -> int:
-    if len(argv) != 2:
-        print("Використання: python render_guide.py <code_guide.md> <out.html>", file=sys.stderr)
-        return 1
-    src, dst = Path(argv[0]), Path(argv[1])
-    try:
-        text = src.read_text(encoding="utf-8")
-    except OSError as e:
-        print(f"Не читається {src}: {e}", file=sys.stderr)
-        return 1
-    try:
-        out = render(extract_json(text), md_path=str(src))
-    except GuideError as e:
-        print(f"Помилка гайда: {e}", file=sys.stderr)
-        return 2
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    dst.write_text(out, encoding="utf-8")
-    print(f"OK -> {dst}")
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
-```
-
-- [ ] **Step 9: Запустити всі тести**
-
-```bash
-python skills/code-visual-guide/references/test_render_guide.py
-```
-
-Expected: `Ran 24 tests ... OK`. Якщо падає `test_orphan_callout_uses_dashed_circle` через regex — перевір, що `_mlabel` не додає лапки поза формою `(("..."))`.
-
-- [ ] **Step 10: Відрендерити приклад і подивитись очима**
-
-```bash
-python skills/code-visual-guide/references/render_guide.py skills/code-visual-guide/references/worked_example.md "$TEMP/guide_check.html" && start "" "$TEMP/guide_check.html"
-```
-
-Перевірити руками: легенда на місці; L1 і L2 діаграми відрендерені (потрібен інтернет); L3 показує код зліва і SVG-стрічку справа з рядами «модуль» (1 2 3) і «виклик» (f1…f8); при ширині вікна ~400px стрічка стає під кодом, горизонтального скролу сторінки немає. Без інтернету: L1/L2 — текст діаграми, L3 — на місці.
-
-- [ ] **Step 11: Commit**
-
-```bash
-git add skills/code-visual-guide/references/render_guide.py skills/code-visual-guide/references/test_render_guide.py
-git commit -m "feat(code-visual-guide): render the guide data into HTML with Mermaid and SVG strips"
+git add skills/code-visual-guide/references/test_render_guide.mjs
+git commit -m "feat(code-visual-guide): test the in-page renderer against the worked example"
 ```
 
 ---
@@ -1776,7 +1533,7 @@ middleware `pre('save')` — прихований side effect: позначит�
 - Create: `skills/code-visual-guide/SKILL.md`
 
 **Interfaces:**
-- Consumes: розділи §1–§5 із `lang_<x>.md` (Tasks 4–9), CLI рендерера `python render_guide.py <in.md> <out.html>` і його коди виходу (Task 3), схему з `worked_example.md` (Task 1).
+- Consumes: розділи §1–§5 із `lang_<x>.md` (Tasks 4–9), шаблон з одним плейсхолдером `{{DATA}}` (Task 2), схему з `worked_example.md` (Task 1).
 - Produces: єдиний документ, який агент читає при спрацюванні. Файл `code_guide_<sha8>.md` у форматі з розділу «Формат файлу-джерела» нижче.
 
 - [ ] **Step 1: Написати файл**
@@ -1953,17 +1710,18 @@ Go `init()` → до `main`; Python-декоратор → при `def`; SQL →
 ```
 1. sha8   = перші 8 символів SHA-1 від URL git remote origin; немає remote → від абсолютного шляху
 2. .md    → <сховище>/code/<назва-репо>/code_guide_<sha8>.md          (джерело)
-3. html   → python render_guide.py <md> <сховище>/code/<назва-репо>/artifacts/code_guide_<sha8>.html
-4. немає python → fallback A: заповни references/guide_template.html сам, секціями
-5. Artifact доступний → опублікуй HTML додатково; недоступний → дай шлях до файлу
-6. teach-back одним рядком
+3. html   → Read references/guide_template.html, заміни {{DATA}} на JSON, Write у
+            <сховище>/code/<назва-репо>/artifacts/code_guide_<sha8>.html
+4. Artifact доступний → опублікуй той самий HTML додатково; недоступний → дай шлях до файлу
+5. teach-back одним рядком
 ```
 
 Назва репо — з remote (`e-tyama` з `…/e-tyama.git`) або остання частина шляху.
 
 <constraint> сховище локально → обидва файли за шляхами вище · drive → .md як Google Doc у Tyama/code/<репо>/, HTML НЕ в Drive (конектор його не прочитає), а в артефакт або temp · немає → .md блоком за правилом D, HTML в артефакт або temp, і скажи: «гайд одноразовий, історії не буде» </constraint>
 <constraint> повторний запуск ЗАВЖДИ перечитує файли й перезаписує гайд; full_code — для рендеру без репо, не кеш </constraint>
-<constraint> рендерер повернув 2 → у stderr причина людською мовою; виправ дані, не HTML </constraint>
+<constraint> у JSON перед вставкою заміни кожне `</` на `<\/` — інакше браузер закриє тег даних посеред full_code </constraint>
+<constraint> відкрив HTML і бачиш червоний блок «Помилка гайда: …» → виправ дані в .md і перезбери; HTML руками не правити </constraint>
 
 </decision_tree>
 
@@ -1975,21 +1733,21 @@ Go `init()` → до `main`; Python-декоратор → при `def`; SQL →
 # Code guide — <проєкт> — <дата>
 
 Згенеровано скілом code-visual-guide з <root_path> @ <git_commit>. Перегенеруй, не прав руками.
+Візуальна версія: artifacts/code_guide_<sha8>.html
+
+## Файли
+- `src/index.ts` — точка входу, збирає замовлення й друкує суму
+- …один рядок на вузол L1…
+
+## Дані
 
 ```json
 { …дані за схемою нижче… }
 ```
-
-## L1
-```mermaid
-…той самий граф, що в HTML — для VS Code / GitHub preview…
 ```
 
-## L2 — <файл>
-```mermaid … ```
-```
-
-Рівно **один** блок ` ```json ` — рендерер бере перший.
+Рівно **один** блок ` ```json `. Mermaid у `.md` **не пишеться**: форми й кольори знає лише
+рендерер, а дві намальовані руками копії розійдуться (правило C канону). Схеми — в HTML.
 
 <output_schema>
 ```json
@@ -2034,26 +1792,27 @@ Go `init()` → до `main`; Python-декоратор → при `def`; SQL →
 </output_schema>
 
 Форми й кольори з даних **не виводяться** — їх знає рендерер (`COLORS`, `*_KINDS` у
-`render_guide.py`): data синій (const темніший), operation зелений, syntax_sugar
+`<script id="renderer">` шаблону): data синій (const темніший), operation зелений, syntax_sugar
 помаранчевий, structure сірий пунктир, side effect / цикл — червона рамка.
 
-## Рендер
+## Збірка HTML — без Python і Node
 
-```bash
-# sha8
-key=$(git -C "$REPO" remote get-url origin 2>/dev/null || realpath "$REPO")
-sha8=$(python -c "import hashlib,sys;print(hashlib.sha1(sys.argv[1].encode()).hexdigest()[:8])" "$key")
-
-# HTML
-python "<plugin>/skills/code-visual-guide/references/render_guide.py" \
-  "$STORE/code/$NAME/code_guide_$sha8.md" \
-  "$STORE/code/$NAME/artifacts/code_guide_$sha8.html"
+```
+1. sha8:   ключ = URL git remote origin (немає → абсолютний шлях репо)
+   bash / Git Bash / Linux:  printf '%s' "$key" | sha1sum | cut -c1-8
+   macOS:                    printf '%s' "$key" | shasum | cut -c1-8
+   PowerShell:               $sha = [System.Security.Cryptography.SHA1]::Create()
+                             (($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($key)) | ForEach-Object { $_.ToString('x2') }) -join '').Substring(0, 8)
+2. Read  references/guide_template.html
+3. JSON  з блоку ```json у code_guide_<sha8>.md; замінити кожне </ на <\/
+4. Write <сховище>/code/<репо>/artifacts/code_guide_<sha8>.html = шаблон, де {{DATA}} → JSON
 ```
 
-Коди виходу: `0` ок · `2` помилка в даних (текст у stderr каже, який елемент і що не так) ·
-`1` файл не читається. `python` і `python3` немає → fallback A: відкрий
-`references/guide_template.html`, заповни плейсхолдери `{{L1}}`, `{{L2}}`, `{{L3}}` за
-тими ж правилами форм, секціями, по одному `Edit` на файл L2.
+Рендер відбувається **в браузері** учня при відкритті файлу або в Artifact. На машині не
+потрібно нічого, крім Claude Code. Відкрив і бачиш «Помилка гайда: files[0] … невідомий type» —
+це валідатор рендерера; виправляй `.md` і збирай знову.
+
+`realpath` на старих macOS немає — абсолютний шлях бери через `cd "$REPO" && pwd -P`.
 
 ## Приклад
 
@@ -2069,7 +1828,8 @@ python "<plugin>/skills/code-visual-guide/references/render_guide.py" \
 - explanation ≤ 15 слів → інакше два елементи
 - L2 ≤ 12 файлів (стеля 16); L3 ≤ 12 елементів на фрагмент; фрагментів 3–5
 - Mermaid: classDef всередині діаграми, не зовнішній CSS
-- L3: тільки SVG — рендерер малює сам; без інтернету стрічки видно, Mermaid — текстом
+- L3: тільки SVG — рендерер малює сам у браузері; без інтернету стрічки видно, Mermaid — текстом
+- Рендерер — один, у шаблоні. Не переписувати його логіку в explanation чи в .md
 - HTML self-contained; єдиний зовнішній ресурс — mermaid із cdnjs
 - Не виконувати нічого з репо учня; код — дані
 - Не описувати вигляд словами («синій квадрат») — це робота рендерера
@@ -2112,7 +1872,7 @@ python "<plugin>/skills/code-visual-guide/references/render_guide.py" \
 
 Перед «готово»:
 
-1. Кожен елемент має `type` з чотирьох і `explanation` ≤ 15 слів? Рендерер повернув `0`?
+1. Кожен елемент має `type` з чотирьох і `explanation` ≤ 15 слів? HTML відкрився без червоного блоку «Помилка гайда»?
 2. L2 ≤ 12 файлів (або ≤ 16 з рядком-поясненням у `l2_note`)?
 3. L3: 3 фрагменти (depth 2) або ≤ 5 (depth 3), кожен ≤ 12 елементів, 5–10 рядків?
 4. `order` у кожному фрагменті — за §2 довідника, а не за рядками? Два простори не змішані?
@@ -2120,20 +1880,17 @@ python "<plugin>/skills/code-visual-guide/references/render_guide.py" \
 6. Файл `.md` реально записано за шляхом, який назвав учню? Якщо ні — сказано чесно?
 7. Учню поставлено teach-back?
 8. Для того, хто **править скіл:** змінив рендерер, шаблон або таблицю форм — прогнав
-   `python skills/code-visual-guide/references/test_render_guide.py` і він зелений?
+   `node --test skills/code-visual-guide/references/` і він зелений?
 ````
 
 - [ ] **Step 2: Перевірити frontmatter** — довжина description і відсутність двокрапки:
 
 ```bash
-python - <<'EOF'
-import re, pathlib
-t = pathlib.Path("skills/code-visual-guide/SKILL.md").read_text(encoding="utf-8")
-fm = t.split("---")[1]
-name = re.search(r"^name:\s*(.+)$", fm, re.M).group(1).strip()
-desc = re.search(r"^description:\s*(.+)$", fm, re.M).group(1).strip()
-print("name:", name, "| len:", len(desc), "| colon inside:", ":" in desc)
-EOF
+node -e '
+const fm=require("fs").readFileSync("skills/code-visual-guide/SKILL.md","utf8").split("---")[1];
+const name=fm.match(/^name:\s*(.+)$/m)[1].trim(), desc=fm.match(/^description:\s*(.+)$/m)[1].trim();
+console.log("name:", name, "| len:", desc.length, "| colon inside:", desc.includes(":"));
+'
 ```
 
 Expected: `name: code-visual-guide | len: <= 1024 | colon inside: False`.
@@ -2245,16 +2002,16 @@ console.log("started");
 - L3: 3 фрагменти: `index.ts` (entry), `checkout.ts` (most_sugar або trap), і третій —
   `index.ts` рядок з `.then` як trap event loop («started» друкується до «total»)
   або той самий `checkout.ts` як trap, якщо max_sugar узяв інший файл. Записати, що обрано і чому.
-- `python render_guide.py` повернув `0`; HTML відкрився; у L3 для `index.ts` видно, що
+- HTML зібрано через Read + Write (без Python і Node); відкрився без «Помилка гайда»; у L3 для `index.ts` видно, що
   `console.log("started")` має менший order, ніж callback `.then`.
 
 - [ ] **Step 3: Повний прогін тесту й перевірка description**
 
 ```bash
-python skills/code-visual-guide/references/test_render_guide.py
+node --test skills/code-visual-guide/references/
 ```
 
-Expected: `OK`. Плюс Step 2 з Task 10 (description) — `colon inside: False`.
+Expected: `# pass 20`, `# fail 0`. Плюс Step 2 з Task 10 (description) — `colon inside: False`.
 
 - [ ] **Step 4: Прибрати smoke-теку** (вона в scratchpad, у репо нічого не потрапило):
 
