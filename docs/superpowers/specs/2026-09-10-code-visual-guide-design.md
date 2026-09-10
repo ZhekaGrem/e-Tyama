@@ -228,6 +228,7 @@ stdlib читає його без залежностей, і GitHub показу
   "root_path": "string (абсолютний шлях репо)",
   "languages": ["js_ts | python | go | java | sql | mongo"],
   "depth": 2,
+  "l2_note": "string — L2 показано для N з M файлів: критерії",
   "l1": {
     "nodes": [{"id": "src/api", "kind": "dir|file", "summary": "≤1 речення"}],
     "edges": [{"from": "src/api", "to": "src/db"}],
@@ -238,7 +239,7 @@ stdlib читає його без залежностей, і GitHub показу
     "language": "js_ts",
     "elements": [{
       "type": "data|operation|syntax_sugar|structure",
-      "kind": "const|let|var|literal|function|method|if|loop|query_stage|async|decorator|spread|destructuring|comprehension|lambda|optional_chaining|cte|import|export|class|interface|type|table|collection|index",
+      "kind": "const|let|var|literal|function|method|operator|return|if|loop|query_stage|async|decorator|spread|destructuring|comprehension|lambda|optional_chaining|cte|import|export|class|interface|type|table|collection|index",
       "name": "string",
       "line": 12,
       "explanation": "≤15 слів",
@@ -246,7 +247,8 @@ stdlib читає його без залежностей, і GitHub показу
       "order": "3 | 'f2' | null  (① модуль · f-префікс тіло функції · null для STRUCTURE)",
       "equivalent": "string | null",
       "reading": "string | null",
-      "side_effect": "string | null"
+      "side_effect": "string | null",
+      "calls": ["string — опційно: імена елементів цього файлу, дає стрілки на L2"]
     }],
     "l3_fragment": {
       "lines": "10-18",
