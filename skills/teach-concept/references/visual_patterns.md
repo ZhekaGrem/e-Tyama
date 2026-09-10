@@ -253,6 +253,8 @@
 *_log.md
 retro/
 **/anki/
+code_guide_*.md
+artifacts/code_guide_*.html
 
 # чернетки: помилки, ідеї, проби
 errors/

@@ -29,6 +29,7 @@
 ├── interview/<стек>/             # банк питань + mock_log.md (interview-mock)
 ├── system-design/                # задачі + drill_log.md (system-design-drill)
 ├── algoritm/                     # задачі, stats.md (leetcode-coach)
+├── code/<репо>/                  # code-visual-guide: code_guide_<sha8>.md + artifacts/*.html
 ├── common-mistakes/              # типові помилки: джерело trap-питань
 ├── docs/
 │   └── course-audit-queue.md     # опційно: черга курсів на аудит (course-audit)
@@ -98,6 +99,8 @@ Tyama/
 *_log.md
 retro/
 **/anki/
+code_guide_*.md
+artifacts/code_guide_*.html
 
 # чернетки: помилки, ідеї, проби
 errors/
