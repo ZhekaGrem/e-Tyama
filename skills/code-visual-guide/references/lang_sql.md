@@ -31,6 +31,7 @@ SQL — декларативна мова: рядки коду кажуть *щ�
 ```sql
 SELECT dept, COUNT(*) AS n
 FROM emp
+JOIN dept ON dept.id = emp.dept_id
 WHERE salary > 100
 GROUP BY dept
 HAVING COUNT(*) > 5
@@ -38,13 +39,16 @@ ORDER BY n DESC
 LIMIT 10;
 ```
 
-Порядок: ① `FROM emp` → ② `WHERE salary > 100` (рядки) → ③ `GROUP BY dept` → ④ `HAVING
-COUNT(*) > 5` (групи) → ⑤ `SELECT dept, COUNT(*) AS n` (вирази; аліас `n` з'являється саме
-тут) → ⑥ `ORDER BY n DESC` → ⑦ `LIMIT 10`.
-Чому: `WHERE` виконується до того, як пораховано агрегати й аліаси зі `SELECT`, тому не бачить
-ні `n`, ні `COUNT(*)`; `ORDER BY` виконується після `SELECT` і аліас уже бачить.
+Порядок: ① `FROM emp` → ② `JOIN dept …` → ③ `WHERE salary > 100` (рядки) → ④ `GROUP BY dept`
+→ ⑤ `HAVING COUNT(*) > 5` (групи) → ⑥ `SELECT dept, COUNT(*) AS n` (вирази; аліас `n`
+з'являється саме тут) → ⑦ `ORDER BY n DESC` → ⑧ `LIMIT 10`.
+Чому: `JOIN` виконується в межах кроку `FROM` — таблиці з'єднуються ДО того, як `WHERE`
+відфільтрує рядки; у гайді `FROM` = ①, кожен наступний `JOIN` отримує наступний номер, а
+`WHERE` — номер після них. `WHERE` виконується до того, як пораховано агрегати й аліаси зі
+`SELECT`, тому не бачить ні `n`, ні `COUNT(*)`; `ORDER BY` виконується після `SELECT` і аліас
+уже бачить.
 reading для `WHERE`: «до групування; агрегати й аліаси ще недоступні». `order` для стадій —
-цілі ①…⑦ за цим логічним порядком, **не за номером рядка** в тексті запиту.
+цілі ①…⑧ за цим логічним порядком, **не за номером рядка** в тексті запиту.
 (Повний офіційний ланцюжок довший: `WITH` → `FROM` → `WHERE` → `GROUP BY`/`HAVING` → `SELECT`
 → `DISTINCT` → `UNION`/`INTERSECT`/`EXCEPT` → `ORDER BY` → `LIMIT`/`OFFSET` → `FOR UPDATE`;
 у прикладі вище — без `WITH`, `DISTINCT` і `FOR UPDATE`.)
@@ -114,10 +118,11 @@ equivalent: `ON active.user_id = orders.user_id`, плюс одна колонк
   пише дані на диск.
 - **Глобальний стан:** `CREATE`/`ALTER`/`DROP` (таблиця, індекс, вʼю — міняють схему для всіх);
   `nextval()`/`currval()` над `SEQUENCE` — зсуває спільний лічильник; функції, позначені
-  `VOLATILE`, а також `NOW()`/`CURRENT_TIMESTAMP`, `random()` — недетерміновані, залежать від
-  часу чи сесії, а не лише від аргументів.
-- **Мутація аргументу:** `SELECT … FOR UPDATE` / `FOR SHARE` — блокує рядки, які сам запит
-  читає, для інших паралельних транзакцій; читання тут одразу міняє стан прочитаного.
+  `VOLATILE` (PostgreSQL-класифікація: `IMMUTABLE`/`STABLE`/`VOLATILE`; в інших СУБД термін
+  інший), а також `NOW()`/`CURRENT_TIMESTAMP`, `random()` — недетерміновані, залежать від часу
+  чи сесії, а не лише від аргументів.
+- **Блокування (не мутація, але side effect для інших сесій):** `SELECT … FOR UPDATE` /
+  `FOR SHARE` — рядки не змінюються, але інші транзакції, що хочуть їх змінити, чекають.
 
 `SELECT` без жодного з переліченого — чисте читання, без side effects.
 
