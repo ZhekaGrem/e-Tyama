@@ -58,6 +58,11 @@ test("order у чужому форматі відхиляється", () => {
   const d = exampleData(); d.files[0].elements[5].order = "step1";
   assert.throws(() => CG.validate(d), /order/);
 });
+test("callout з чужим kind відхиляється", () => {
+  const d = exampleData();
+  d.l1.callouts.push({ kind: 'x" onmouseover="alert(1)', where: "src/x.ts", note: "n" });
+  assert.throws(() => CG.validate(d), (e) => e instanceof CG.GuideError && /callouts/.test(e.message) && /cycle \| orphan/.test(e.message));
+});
 
 // --- рендер -----------------------------------------------------------------------
 const html = CG.render(exampleData());

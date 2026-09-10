@@ -76,8 +76,7 @@ const CodeGuide = (function () {
   const TYPES = ["data", "operation", "syntax_sugar", "structure"];
   const COLORS = { data: "#3B82F6", const: "#1D4ED8", operation: "#10B981",
                    syntax_sugar: "#F59E0B", structure: "#6B7280", warn: "#DC2626" };
-  const FLAG_KINDS = new Set(["async", "decorator", "optional_chaining"]);        // прапорець / трикутник
-  const HEX_KINDS = new Set(["spread", "destructuring", "comprehension", "lambda", "cte"]); // шестикутник
+  const FLAG_KINDS = new Set(["async", "decorator", "optional_chaining"]);        // прапорець / трикутник; інші синтаксис_цукру — шестикутник
   const DIAMOND_KINDS = new Set(["if", "loop"]);                                   // ромб
   const ORDER_RE = /^f\d+$/;
 
@@ -109,6 +108,10 @@ const CodeGuide = (function () {
         if (!orderOk(el.order)) throw new GuideError(`${where}: order має бути числом, 'f<N>' або null, а не ${JSON.stringify(el.order)}`);
       });
       if (f.l3_fragment) require(f.l3_fragment, ["lines", "why_chosen", "full_code", "order_explanation"], `files[${i}] l3_fragment`);
+    });
+    (data.l1.callouts || []).forEach((c, i) => {
+      const allowed = ["cycle", "orphan"];
+      if (!allowed.includes(c.kind)) throw new GuideError(`l1.callouts[${i}]: kind має бути ${allowed.join(" | ")}, а не ${JSON.stringify(c.kind)}`);
     });
   }
 
@@ -244,7 +247,7 @@ const CodeGuide = (function () {
         `<td>${esc(el.line ?? "")}</td><td>${el.order == null ? "—" : esc(el.order)}</td><td>${esc(el.explanation)}</td></tr>`).join("") +
       `</tbody></table>`;
   }
-  const callout = (kind, text) => `<div class="callout callout-${kind}">${esc(text)}</div>`;
+  const callout = (kind, text) => `<div class="callout callout-${esc(kind)}">${esc(text)}</div>`;
 
   function legend() {
     return `<div class="legend" aria-label="Легенда">
