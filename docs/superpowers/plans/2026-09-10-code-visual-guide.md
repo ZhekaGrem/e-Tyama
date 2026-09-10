@@ -20,7 +20,7 @@
 - `order` = порядок виконання після фази підготовки; ціле для рівня модуля, `"f<N>"` для тіла функції, `null` для STRUCTURE (крім static / `init()` / декоратора).
 - **Учню не потрібні ні Python, ні Node.** Рендер — у браузері; HTML збирається як `guide_template.html` з `{{DATA}}` → JSON, через Read + Write у Claude Code.
 - Рендерер живе в `<script id="renderer">` шаблону і ніде більше; тест витягує його звідти. Тест — одна команда: `node --test skills/code-visual-guide/references/test_render_guide.mjs` (Node 18+; лише для того, хто править скіл).
-- У JSON, вставленому в `<script type="application/json">`, послідовність `</` пишеться як `<\/`.
+- У JSON, вставленому в `<script type="application/json">`, кожен `<` пишеться як `\u003c` (script-дані реагують і на `<!--`).
 - `classDef` зі `stroke-dasharray` — лише через пробіл (`4 2`), кома в Mermaid — роздільник.
 - Mermaid у HTML: `<pre class="mermaid">`, `classDef` всередині діаграми; скрипт `https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js` (перевірено 2026-09-10: HTTP 200); ініціалізація лише якщо `pre.mermaid svg` ще немає.
 - Кожне правило в `lang_<x>.md` має посилання на spec / MDN / офіційну доку, **перевірене WebFetch на момент написання**.
@@ -2012,7 +2012,7 @@ console.log("started");
 node --test skills/code-visual-guide/references/test_render_guide.mjs
 ```
 
-Expected: `# pass 21`, `# fail 0`. Плюс Step 2 з Task 10 (description) — `colon inside: False`.
+Expected: `# pass 26`, `# fail 0`. Плюс Step 2 з Task 10 (description) — `colon inside: False`.
 
 - [ ] **Step 4: Прибрати smoke-теку** (вона в scratchpad, у репо нічого не потрапило):
 
