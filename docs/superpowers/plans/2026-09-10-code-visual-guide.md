@@ -1669,7 +1669,8 @@ Callout-и L1:
 
 <constraint> учень не назвав файли, одна мова → рівно #1 entry, #2 max_sugar, #3 max_trap </constraint>
 <constraint> depth 2 → рівно 3 фрагменти незалежно від кількості мов (entry з головної мови, max_sugar і max_trap по всьому репо); depth 3 → до 5, і щонайменше по одному на мову </constraint>
-<constraint> фрагмент = 5–10 рядків; довша функція → ключові рядки + «…» у full_code </constraint>
+<constraint> фрагмент = 5–10 рядків; довша функція → ключові рядки + «…» у full_code; файл коротший за 5 рядків береться цілим </constraint>
+<constraint> фрагментів ніколи не більше, ніж файлів, що підходять (≥ 5 рядків коду або entry); третій слот не заповнюється вигаданою пасткою — why_chosen trap лише з посиланням на §2.N, інакше most_sugar або порожньо </constraint>
 <constraint> вбудований запит (SQL у рядку, aggregate([...])) → фрагмент за lang_sql / lang_mongo, не за мовою-обгорткою </constraint>
 
 ### Крок 4 — L3: елементи й порядок
@@ -2011,7 +2012,7 @@ console.log("started");
 node --test skills/code-visual-guide/references/test_render_guide.mjs
 ```
 
-Expected: `# pass 20`, `# fail 0`. Плюс Step 2 з Task 10 (description) — `colon inside: False`.
+Expected: `# pass 21`, `# fail 0`. Плюс Step 2 з Task 10 (description) — `colon inside: False`.
 
 - [ ] **Step 4: Прибрати smoke-теку** (вона в scratchpad, у репо нічого не потрапило):
 
