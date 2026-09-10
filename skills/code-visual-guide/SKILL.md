@@ -228,7 +228,7 @@ Go `init()` → до `main`; Python-декоратор → при `def`; SQL →
     "language": "js_ts",
     "elements": [{
       "type": "data | operation | syntax_sugar | structure",
-      "kind": "const | let | var | literal | function | method | operator | return | if | loop | query_stage | async | decorator | spread | destructuring | comprehension | lambda | optional_chaining | cte | import | export | class | interface | type | table | collection | index | asyncio | dataclass | new | require",
+      "kind": "const | let | var | literal | function | method | operator | return | if | loop | query_stage | async | decorator | spread | destructuring | comprehension | lambda | optional_chaining | cte | import | export | class | interface | type | table | collection | index",
       "name": "string",
       "line": 12,
       "explanation": "≤ 15 слів",
