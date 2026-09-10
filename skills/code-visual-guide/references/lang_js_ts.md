@@ -13,11 +13,12 @@ TypeScript тут = JavaScript + анотації типів. Типи — **STR
 | `literal` | число, рядок у лапках, `true/false/null/undefined`, `[...]`, `{...}` як значення | data |
 | `function` | `^\s*(export\s+)?(async\s+)?function\s+\w+` | operation |
 | `method` | `\w+\s*\(` всередині `class` або після `.` | operation |
+| `method` (`.then(`) | `.then(`, `.catch(`, `.finally(` — виклик методу проміса; callback іде в мікрозадачу після синхронного коду | operation |
 | `operator` | `+ - * / % == === != !== < > && || ?? =` | operation |
 | `return` | `return\b` | operation |
 | `if` | `if\s*\(`, `switch`, тернарний `? :` | operation |
 | `loop` | `for\b`, `while\b`, `.map( .filter( .reduce( .forEach(` | operation |
-| `async` | `async\b`, `await\b`, `.then(` | syntax_sugar |
+| `async` | `async\b`, `await\b` | syntax_sugar |
 | `decorator` | `@\w+` перед class/method (TS) | syntax_sugar |
 | `spread` | `\.\.\.\w+` | syntax_sugar |
 | `destructuring` | `const {a, b} =`, `const [x] =`, у параметрах | syntax_sugar |
