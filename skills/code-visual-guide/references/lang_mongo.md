@@ -139,7 +139,7 @@ reading: «ледачий, поки не await/.exec()/.toArray()».
 | `$ifNull: [a, b]` | optional_chaining | `a ?? b` | так |
 | `$facet` | cte | кілька незалежних пайплайнів паралельно на одному вході; кожен пише свій ключ у результат | так |
 | `.populate("user")` | optional_chaining | `$lookup` + `$unwind`, зроблені драйвером окремим запитом, не однією агрегацією | Mongoose |
-| `.lean()` | optional_chaining | `doc.toObject()` для кожного результату, без гідратації в Document | Mongoose |
+| `.lean()` | optional_chaining | результат запиту віддається як POJO одразу з драйвера; Mongoose пропускає крок гідратації, Document не створюється (це НЕ `toObject()` після гідратації) | Mongoose |
 | `$expr` | lambda | вираз агрегації всередині `find` (динамічна умова замість статичного фільтра) | так |
 | `updateOne(filter, { $set: {...} })` | query_stage | `UPDATE ... SET ...` | так |
 | `upsert: true` | operator | вставити документ, якщо `filter` нічого не знайшов | так |
