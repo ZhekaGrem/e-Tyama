@@ -87,7 +87,7 @@ Integer c = 128, d = 128;   c == d   // false (різні об'єкти)
 Порядок: f1 `Integer a = 127` — boxing компіл-час константи → f2 `Integer b = 127` — та сама
 закешована обгортка → f3 `a == b` порівнює посилання → `true`. f4-f6 те саме для `128` —
 поза гарантованим діапазоном кешу → різні об'єкти → `false`.
-Чому: JLS гарантує, що boxing constant-виразу `boolean`/`char` (до ``)/`int`/`short`/`long`
+Чому: JLS гарантує, що boxing constant-виразу `boolean`/`char` (до `\u007f`)/`int`/`short`/`long`
 у діапазоні `-128..127` двічі дає той самий об'єкт (кеш обгорток). Поза цим діапазоном
 стандарт нічого не гарантує — ідентичність об'єктів там implementation-dependent.
 reading для `==` на обгортках: «порівнює посилання, не значення; для значень —
@@ -129,6 +129,27 @@ s.collect(toList());   // тепер друкує
 reading для `map`: «відкладено; тіло лямбди виконається лише під час найближчого terminal».
 Джерело: java.util.stream, Package Summary («Intermediate operations… are always lazy…
 Traversal of the pipeline source does not begin until the terminal operation… is executed»).
+
+### Додатково: анотація — метадані, не виконання
+
+```java
+@Override
+public String toString() { return "x"; }
+
+@Transactional
+public void save(Order o) { repo.save(o); }
+```
+
+Порядок: анотація нічого не запускає в потоці виконання — `@Override` перевіряється компілятором
+ще на етапі компіляції, `@Transactional` сама по собі під час виклику `save(...)` не виконується;
+метод відпрацьовує так, ніби анотації немає.
+Чому: анотація — це маркер-метадані, приписані елементу програми; сама вона не має ефекту під
+час виконання — ефект (якщо є) дає той, хто цю анотацію читає: компілятор (`@Override`) або
+фреймворк через рефлексію під час старту/виклику (`@Transactional`, `@Autowired` — Spring/JPA).
+reading: «обробляє Spring/JPA/компілятор, не JVM під час виконання».
+kind: `decorator`, `language_specific: true`.
+Джерело: JLS §9.7 (Annotations — «An annotation is a marker which associates information with
+a program element, but has no effect at run time»).
 
 ## 3. Список цукру
 
