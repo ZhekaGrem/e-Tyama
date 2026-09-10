@@ -1,4 +1,4 @@
-// Тести рендерера code-visual-guide. Запуск: node --test skills/code-visual-guide/references/
+// Тести рендерера code-visual-guide. Запуск: node --test skills/code-visual-guide/references/test_render_guide.mjs
 // Рендерер живе всередині guide_template.html (<script id="renderer">); тест витягує його звідти,
 // тому джерело правди одне. Node потрібен лише тому, хто править скіл, не учню.
 import { test } from "node:test";
