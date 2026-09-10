@@ -12,12 +12,12 @@ TypeScript тут = JavaScript + анотації типів. Типи — **STR
 | `let` / `var` | `^\s*(let|var)\s+\w+` | data |
 | `literal` | число, рядок у лапках, `true/false/null/undefined`, `[...]`, `{...}` як значення | data |
 | `function` | `^\s*(export\s+)?(async\s+)?function\s+\w+` | operation |
-| `method` | `\w+\s*\(` всередині `class` або після `.` | operation |
+| `method` | `\w+\s*\(` всередині `class` або після `.`; `.map( .filter( .reduce( .forEach(` — виклики методів, не цикли | operation |
 | `method` (`.then(`) | `.then(`, `.catch(`, `.finally(` — виклик методу проміса; callback іде в мікрозадачу після синхронного коду | operation |
 | `operator` | `+ - * / % == === != !== < > && || ?? =` | operation |
 | `return` | `return\b` | operation |
 | `if` | `if\s*\(`, `switch`, тернарний `? :` | operation |
-| `loop` | `for\b`, `while\b`, `.map( .filter( .reduce( .forEach(` | operation |
+| `loop` | `for\b`, `while\b` | operation |
 | `async` | `async\b`, `await\b` | syntax_sugar |
 | `decorator` | `@\w+` перед class/method (TS) | syntax_sugar |
 | `spread` | `\.\.\.\w+` | syntax_sugar |
@@ -30,6 +30,10 @@ TypeScript тут = JavaScript + анотації типів. Типи — **STR
 | `interface` / `type` | `interface\s+\w+`, `type\s+\w+\s*=`, анотації `: Type` | structure |
 
 ## 2. Пастки читання
+
+`f1`, `f2` у прикладах нижче — порядок підвиразів усередині одного виразу чи виклику. У гайді
+нумерація за SKILL.md: рівень модуля — ①②③, тіло функції — f1…; підвирази модульного рівня
+нумеруються цілими.
 
 ### 2.1 Hoisting — `var` і `function` існують до свого рядка
 
@@ -146,6 +150,10 @@ reading для `import`: «ESM: зв'язується до виконання м
 Джерело: MDN, import (мовне правило: hoisting, static, live bindings); Node.js docs, Modules: CommonJS; Modules: ECMAScript modules (рантайм: require синхронний і кешується, ESM має власний кеш).
 
 ## 3. Список цукру
+
+§3 дає `equivalent`. `type` елемента береться з §1; рядок §3 робить елемент `syntax_sugar`
+лише тоді, коли §1 не дав йому іншого типу. Виглядає як цукор, але ним не є — лишається тим,
+чим є в §1.
 
 | конструкція | kind | equivalent | language_specific |
 |---|---|---|---|

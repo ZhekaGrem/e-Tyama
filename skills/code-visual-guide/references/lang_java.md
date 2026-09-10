@@ -15,13 +15,13 @@ Java — статично типізована мова, що компілюєт
 | `literal` | число, рядок у лапках, text block `"""…"""`, `true/false/null`, масив-літерал `{...}` | data |
 | `function` | static-метод: `static\s+[\w<>\[\]]+\s+\w+\s*\(` | operation |
 | `method` | `(public|private|protected)?\s*[\w<>\[\]]+\s+\w+\s*\(`, не всередині оголошення `class`/`new` | operation |
+| `method` | `CompletableFuture`, `Thread`, `ExecutorService` — бібліотечні класи, нічого не розцукровують; reading — виконується асинхронно | operation |
 | `operator` | `+ - * / % == != < > && \|\| = instanceof` | operation |
 | `return` | `return\b` | operation |
 | `if` | `if\s*\(`, `switch`, тернарний `? :`, switch expression `case X -> …` | operation |
 | `loop` | `for\b`, `while\b`, `do\b`, enhanced `for (T t : xs)` | operation |
-| `decorator` | `^\s*@\w+` перед class/method/field (анотація) | syntax_sugar |
+| `decorator` | `^\s*@\w+` перед class/method/field (анотація); `@Async` — теж анотація, тут же | syntax_sugar |
 | `lambda` | `->` (лямбда), method reference `::` | syntax_sugar |
-| `async` | `CompletableFuture`, `@Async`, `Thread`, `ExecutorService` | syntax_sugar |
 | `destructuring` | record pattern: `case Type(f1, f2) ->`, `instanceof Type(f1, f2)` | syntax_sugar |
 | `optional_chaining` | `Optional.map(`, `.orElse(`, `.ifPresent(` | syntax_sugar |
 | `import` | `^import\b` | structure |
@@ -35,6 +35,10 @@ Java — статично типізована мова, що компілюєт
 могло однаково питати «що звідси видно ззовні» для будь-якої мови.
 
 ## 2. Пастки читання
+
+`f1`, `f2` у прикладах нижче — порядок підвиразів усередині одного виразу чи виклику. У гайді
+нумерація за SKILL.md: рівень модуля — ①②③, тіло функції — f1…; підвирази модульного рівня
+нумеруються цілими.
 
 ### 2.1 Static-блоки і static-поля — до конструктора, в текстовому порядку, один раз
 
@@ -152,6 +156,10 @@ kind: `decorator`, `language_specific: true`.
 a program element, but has no effect at run time»).
 
 ## 3. Список цукру
+
+§3 дає `equivalent`. `type` елемента береться з §1; рядок §3 робить елемент `syntax_sugar`
+лише тоді, коли §1 не дав йому іншого типу. Виглядає як цукор, але ним не є — лишається тим,
+чим є в §1.
 
 `var x = …` у цю таблицю не входить: це вивід типу компілятором (type inference), не
 трансформація коду — маркер `let`, kind `data` (див. §1).

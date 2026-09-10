@@ -29,6 +29,10 @@
 
 ## 2. Пастки читання
 
+`f1`, `f2` у прикладах нижче — порядок підвиразів усередині одного виразу чи виклику. У гайді
+нумерація за SKILL.md: рівень модуля — ①②③, тіло функції — f1…; підвирази модульного рівня
+нумеруються цілими.
+
 ### 2.1 LEGB і UnboundLocalError — присвоєння робить ім'я локальним для всієї функції
 
 ```python
@@ -145,6 +149,10 @@ reading для другого `import config`: «взято з кешу sys.modu
 
 ## 3. Список цукру
 
+§3 дає `equivalent`. `type` елемента береться з §1; рядок §3 робить елемент `syntax_sugar`
+лише тоді, коли §1 не дав йому іншого типу. Виглядає як цукор, але ним не є — лишається тим,
+чим є в §1.
+
 | конструкція | kind | equivalent | language_specific |
 |---|---|---|---|
 | `[f(x) for x in xs]` | comprehension | `result = []` + `for x in xs: result.append(f(x))` | так |
@@ -152,7 +160,7 @@ reading для другого `import config`: «взято з кешу sys.modu
 | `lambda x: x + 1` | lambda | `def _(x): return x + 1` | так |
 | `a, b = pair` | destructuring | `a = pair[0]; b = pair[1]` | так |
 | `f(*args, **kw)` | destructuring | елементи `args` передаються позиційно, пари `kw` — іменованими аргументами | так |
-| `with open(p) as f: ...` | decorator | `f = open(p)` + `try: ...` + `finally: f.close()` | так |
+| `with open(p) as f: ...` | decorator | `f = open(p)` + `try: ...` + `finally: f.close()` (кошик decorator — умовний: with не декоратор, а обгортка блоку; окремого kind немає навмисно) | так |
 | `async def f(): ...` | async | функція повертає корутину, яку виконує подієвий цикл `asyncio` | так |
 | `await x` | async | призупиняє поточну корутину до готовності `x`, керування повертається до подієвого циклу | так |
 | `f"{x}"` | operator | `"…" + str(x)` | так |

@@ -22,6 +22,7 @@ export async function calculateTotal(items: Item[]) {
   "generated": "2026-09-10",
   "git_commit": "a1b2c3d",
   "root_path": "/work/shop",
+  "source_md": "code/shop/code_guide_deadbeef.md",
   "languages": ["js_ts"],
   "depth": 2,
   "l1": {
@@ -79,7 +80,7 @@ export async function calculateTotal(items: Item[]) {
         "lines": "1-6",
         "why_chosen": "trap",
         "full_code": "import { Item } from \"./types\";\nexport const TAX_RATE = 0.2;\nexport async function calculateTotal(items: Item[]) {\n  const subtotal = items.reduce((sum, i) => sum + i.price, 0);\n  return subtotal * (1 + TAX_RATE);\n}",
-        "order_explanation": "Модуль: ① import зв'язується, ② оголошення calculateTotal піднято (hoisting), ③ TAX_RATE = 0.2. Тіло при виклику: аргументи reduce (f1 стрілка, f2 seed 0) обчислюються до самого виклику f3. Див. lang_js_ts.md §2 — hoisting, порядок обчислення аргументів."
+        "order_explanation": "Модуль: ① import зв'язується, ② оголошення calculateTotal піднято (hoisting), ③ TAX_RATE = 0.2. Тіло при виклику: аргументи reduce (f1 стрілка, f2 seed 0) обчислюються до самого виклику f3. Див. lang_js_ts.md §2.1 (hoisting) і §2.6 (порядок обчислення аргументів)."
       }
     }
   ]
