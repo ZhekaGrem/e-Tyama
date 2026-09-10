@@ -1898,13 +1898,13 @@ Expected: `name: code-visual-guide | len: <= 1024 | colon inside: False`.
 - [ ] **Step 3: Перевірити, що кожен `kind` із довідників є в output_schema**
 
 ```bash
-grep -ho '`[a-z_]*` |' skills/code-visual-guide/references/lang_*.md | tr -d '`| ' | sort -u > "$TEMP/kinds_refs.txt"
+grep -h -o -E '^\| `[a-z_]+` \|' skills/code-visual-guide/references/lang_*.md | tr -d '`| ' | sort -u > "$TEMP/kinds_refs.txt"
 grep -o '"kind": "const |[^"]*"' skills/code-visual-guide/SKILL.md | head -1 | sed 's/"kind": "//; s/"$//' | tr '|' '
 ' | tr -d ' ' | sort -u > "$TEMP/kinds_schema.txt"
 comm -23 "$TEMP/kinds_refs.txt" "$TEMP/kinds_schema.txt"
 ```
 
-Expected: порожній вивід (усі kind-и з довідників є в схемі). Якщо щось є — додати в схему або виправити довідник.
+Expected: порожній вивід або лише слова, що не є kind-ами (перша колонка §3-таблиць — конструкції, не kind-и; судити оком). Справжній kind, якого немає в схемі, — виправити довідник; схему НЕ розширювати.
 
 - [ ] **Step 4: Commit**
 
