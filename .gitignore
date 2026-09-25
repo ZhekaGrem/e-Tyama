@@ -15,6 +15,13 @@ learner-profile.md
 retro/
 **/anki/
 !docs/*_plan.md
+# HTML companions built from those courses (teach-concept/references/html_companion)
+*_learn.html
+*_plan.html
+mermaid.min.js
+
+# --- Dependencies of bundled scripts --------------------------------------
+node_modules/
 
 # --- Where mistakes, ideas and tries pile up ------------------------------
 # Scratch by definition: half-formed, often wrong, sometimes embarrassing.
