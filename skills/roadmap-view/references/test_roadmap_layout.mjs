@@ -27,6 +27,7 @@ const branching12 = fixture('branching12');
 const big30 = fixture('big30');
 const hostile = fixture('hostile');
 const empty = fixture('empty');
+const splitBlock = fixture('split_block');
 
 const pick = (obj, keys) => Object.fromEntries(keys.map((k) => [k, obj[k]]));
 const byId = (L, id) => {
@@ -177,6 +178,16 @@ test('repeat dates read relative to the update day', () => {
   assert.equal(dueText('2026-11-02', '2026-10-20'), 'повтор 2 листопада');
   assert.equal(dueText('2026-10-19', '2026-10-20'), 'повтор уже настав, 19 жовтня');
   assert.equal(dueText('2027-01-05', '2026-10-20'), 'повтор 5 січня 2027');
+});
+
+test('nodes cut from one plan block keep their own repeat notes', () => {
+  // weak_count is matched by the agent (SKILL.md, step 2): the full "Блок плану" cell first,
+  // so "Блок 2: Past Simple" counts on past only; a bare "Блок 2" concept counts nowhere.
+  const L = layoutRoadmap(splitBlock);
+  assert.equal(byId(L, 'past').note, '2 помилки на повтор');
+  assert.equal(byId(L, 'present').note, '');
+  assert.equal(byId(L, 'basics').note, '1 помилка на повтор');
+  assert.equal(splitBlock.repeat.length, 4);
 });
 
 test('a repeat entry without wrong and right shows only the concept', () => {

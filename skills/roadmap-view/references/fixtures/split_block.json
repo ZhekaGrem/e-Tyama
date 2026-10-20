@@ -1,0 +1,21 @@
+{
+  "project": "English для розробника",
+  "goal": "пройти технічну співбесіду англійською",
+  "goal_title": "Технічна співбесіда",
+  "updated": "2026-10-20",
+  "next_step": {
+    "title": "Урок 2 з Past Simple",
+    "hint": "Напиши в чаті «продовж»."
+  },
+  "nodes": [
+    {"id": "basics", "title": "Базові речення", "status": "пройдено", "mandatory": true, "depends": [], "meta": "пройдено 6 жовтня", "weak_count": 1},
+    {"id": "present", "title": "Present Simple", "status": "пройдено", "mandatory": true, "depends": ["basics"], "meta": "пройдено 13 жовтня", "weak_count": 0},
+    {"id": "past", "title": "Past Simple", "status": "в процесі", "mandatory": true, "depends": ["present"], "meta": "урок 1 з 2", "weak_count": 2}
+  ],
+  "repeat": [
+    {"concept": "Порядок слів у питанні", "wrong": "You like coffee?", "right": "Do you like coffee?", "streak": 1, "of": 3, "next_due": "2026-10-20"},
+    {"concept": "did + інфінітив", "wrong": "did + went", "right": "did + go", "streak": 0, "of": 3, "next_due": "2026-10-21"},
+    {"concept": "Неправильні дієслова", "wrong": "he goed", "right": "he went", "streak": 1, "of": 3, "next_due": "2026-10-22"},
+    {"concept": "Часи в Блоці 2", "wrong": "", "right": "", "streak": 0, "of": 3, "next_due": "2026-10-23"}
+  ]
+}
