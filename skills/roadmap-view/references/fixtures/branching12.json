@@ -1,0 +1,29 @@
+{
+  "project": "English для розробника",
+  "goal": "пройти технічну співбесіду англійською",
+  "goal_title": "Технічна співбесіда",
+  "updated": "2026-10-20",
+  "next_step": {
+    "title": "Розминка на 2 помилки, потім урок 3 з Past Simple",
+    "hint": "Напиши в чаті «продовж», і почнемо з місця, де зупинились 18 жовтня."
+  },
+  "nodes": [
+    {"id": "phon", "title": "Фонетика", "status": "пройдено", "mandatory": true, "depends": [], "meta": "пройдено 3 жовтня", "weak_count": 0},
+    {"id": "present", "title": "Present Simple", "status": "пройдено", "mandatory": true, "depends": ["phon"], "meta": "пройдено 11 жовтня", "weak_count": 0},
+    {"id": "past", "title": "Past Simple", "status": "в процесі", "mandatory": true, "depends": ["present"], "meta": "урок 2 з 3", "weak_count": 2},
+    {"id": "vocab", "title": "Словник IT", "status": "пройдено", "mandatory": true, "depends": ["present"], "meta": "пройдено 15 жовтня", "weak_count": 0},
+    {"id": "cond", "title": "Conditionals 0/1", "status": "не почато", "mandatory": true, "depends": ["past", "vocab"], "meta": "", "weak_count": 0},
+    {"id": "standup", "title": "Standup", "status": "не почато", "mandatory": true, "depends": ["cond"], "meta": "", "weak_count": 0},
+    {"id": "review", "title": "Code review", "status": "не почато", "mandatory": true, "depends": ["cond"], "meta": "", "weak_count": 0},
+    {"id": "words1000", "title": "1000 слів", "status": "не почато", "mandatory": false, "depends": ["present"], "meta": "", "weak_count": 0},
+    {"id": "smalltalk", "title": "Small talk", "status": "не почато", "mandatory": false, "depends": ["vocab"], "meta": "", "weak_count": 0},
+    {"id": "listening", "title": "Подкасти", "status": "пройдено", "mandatory": false, "depends": ["phon"], "meta": "пройдено 6 жовтня", "weak_count": 0},
+    {"id": "articles", "title": "Артиклі", "status": "в процесі", "mandatory": false, "depends": ["phon"], "meta": "урок 1 з 2", "weak_count": 1},
+    {"id": "emails", "title": "Робочі листи", "status": "не почато", "mandatory": false, "depends": ["standup"], "meta": "", "weak_count": 0}
+  ],
+  "repeat": [
+    {"concept": "Past Simple", "wrong": "did + went", "right": "did + go", "streak": 2, "of": 3, "next_due": "2026-10-21"},
+    {"concept": "Артиклі", "wrong": "the English", "right": "English", "streak": 1, "of": 3, "next_due": "2026-10-20"},
+    {"concept": "Past Simple", "wrong": "he goed", "right": "he went", "streak": 0, "of": 3, "next_due": "2026-10-24"}
+  ]
+}

@@ -1,0 +1,376 @@
+{
+ "project": "SQL для аналітика",
+ "goal": "самостійно писати звіти для команди без допомоги колег",
+ "goal_title": "Звіти без допомоги",
+ "updated": "2026-10-20",
+ "next_step": {
+  "title": "Урок 3 з LEFT JOIN, потім розминка на 2 помилки",
+  "hint": "Напиши в чаті «продовж»."
+ },
+ "nodes": [
+  {
+   "id": "m1",
+   "title": "Що таке база даних",
+   "status": "пройдено",
+   "mandatory": true,
+   "depends": [],
+   "meta": "пройдено 1 вересня",
+   "weak_count": 0
+  },
+  {
+   "id": "m2",
+   "title": "SELECT і WHERE",
+   "status": "пройдено",
+   "mandatory": true,
+   "depends": [
+    "m1"
+   ],
+   "meta": "пройдено 3 вересня",
+   "weak_count": 0
+  },
+  {
+   "id": "m3",
+   "title": "Типи колонок",
+   "status": "пройдено",
+   "mandatory": true,
+   "depends": [
+    "m1"
+   ],
+   "meta": "пройдено 5 вересня",
+   "weak_count": 0
+  },
+  {
+   "id": "m4",
+   "title": "Сортування",
+   "status": "пройдено",
+   "mandatory": true,
+   "depends": [
+    "m2"
+   ],
+   "meta": "пройдено 8 вересня",
+   "weak_count": 0
+  },
+  {
+   "id": "m5",
+   "title": "JOIN двох таблиць",
+   "status": "пройдено",
+   "mandatory": true,
+   "depends": [
+    "m2",
+    "m3"
+   ],
+   "meta": "пройдено 12 вересня",
+   "weak_count": 1
+  },
+  {
+   "id": "m6",
+   "title": "NULL і порожні значення",
+   "status": "пройдено",
+   "mandatory": true,
+   "depends": [
+    "m3"
+   ],
+   "meta": "пройдено 14 вересня",
+   "weak_count": 0
+  },
+  {
+   "id": "m7",
+   "title": "GROUP BY",
+   "status": "пройдено",
+   "mandatory": true,
+   "depends": [
+    "m4"
+   ],
+   "meta": "пройдено 19 вересня",
+   "weak_count": 0
+  },
+  {
+   "id": "m8",
+   "title": "Агрегати",
+   "status": "пройдено",
+   "mandatory": true,
+   "depends": [
+    "m4",
+    "m5"
+   ],
+   "meta": "пройдено 22 вересня",
+   "weak_count": 0
+  },
+  {
+   "id": "m9",
+   "title": "LEFT і RIGHT JOIN",
+   "status": "в процесі",
+   "mandatory": true,
+   "depends": [
+    "m5"
+   ],
+   "meta": "урок 2 з 4",
+   "weak_count": 2
+  },
+  {
+   "id": "m10",
+   "title": "Обмеження цілісності",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m6"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m11",
+   "title": "Підзапити",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m7",
+    "m8",
+    "m9",
+    "m10"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m12",
+   "title": "Віконні функції",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m11"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m13",
+   "title": "Індекси",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m11"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m14",
+   "title": "Транзакції",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m11"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m15",
+   "title": "ROW_NUMBER і RANK",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m12"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m16",
+   "title": "Ковзні середні",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m12"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m17",
+   "title": "EXPLAIN і плани запитів",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m13"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m18",
+   "title": "Рівні ізоляції",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m14"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m19",
+   "title": "Звіти для аналітики",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m15",
+    "m16"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m20",
+   "title": "Оптимізація повільних запитів",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m17",
+    "m18"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m21",
+   "title": "CTE",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m19"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m22",
+   "title": "Рекурсивні запити",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m19",
+    "m20"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m23",
+   "title": "Міграції схеми",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m20"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "m24",
+   "title": "Проєкт: схема магазину",
+   "status": "не почато",
+   "mandatory": true,
+   "depends": [
+    "m21",
+    "m22",
+    "m13"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "o1",
+   "title": "Історія SQL",
+   "status": "пройдено",
+   "mandatory": false,
+   "depends": [
+    "m1"
+   ],
+   "meta": "пройдено 2 вересня",
+   "weak_count": 0
+  },
+  {
+   "id": "o2",
+   "title": "Нормальні форми",
+   "status": "не почато",
+   "mandatory": false,
+   "depends": [
+    "m3"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "o3",
+   "title": "JSON у колонках",
+   "status": "не почато",
+   "mandatory": false,
+   "depends": [
+    "m6"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "o4",
+   "title": "Тригери",
+   "status": "не почато",
+   "mandatory": false,
+   "depends": [
+    "m10"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "o5",
+   "title": "Pivot-таблиці",
+   "status": "не почато",
+   "mandatory": false,
+   "depends": [
+    "m16"
+   ],
+   "meta": "",
+   "weak_count": 0
+  },
+  {
+   "id": "o6",
+   "title": "Експорт у CSV",
+   "status": "не почато",
+   "mandatory": false,
+   "depends": [
+    "o5"
+   ],
+   "meta": "",
+   "weak_count": 0
+  }
+ ],
+ "repeat": [
+  {
+   "concept": "LEFT JOIN",
+   "wrong": "WHERE після LEFT JOIN відсікає NULL",
+   "right": "умову в ON",
+   "streak": 0,
+   "of": 3,
+   "next_due": "2026-10-19"
+  },
+  {
+   "concept": "LEFT JOIN",
+   "wrong": "COUNT(*) рахує порожні",
+   "right": "COUNT(колонка)",
+   "streak": 2,
+   "of": 3,
+   "next_due": "2026-10-21"
+  },
+  {
+   "concept": "JOIN двох таблиць",
+   "wrong": "JOIN без ON",
+   "right": "JOIN … ON a.id = b.a_id",
+   "streak": 1,
+   "of": 3,
+   "next_due": "2026-11-02"
+  }
+ ]
+}

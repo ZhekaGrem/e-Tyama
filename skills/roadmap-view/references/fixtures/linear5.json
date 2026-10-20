@@ -1,0 +1,20 @@
+{
+  "project": "Python з нуля",
+  "goal": "написати власний скрипт, що чистить папку завантажень",
+  "goal_title": "Перший скрипт",
+  "updated": "2026-10-20",
+  "next_step": {
+    "title": "Урок 2 з умов: elif і вкладені перевірки",
+    "hint": "Напиши в чаті «продовж», і почнемо з другого уроку."
+  },
+  "nodes": [
+    {"id": "vars", "title": "Змінні", "status": "пройдено", "mandatory": true, "depends": [], "meta": "пройдено 2 жовтня", "weak_count": 0},
+    {"id": "types", "title": "Типи даних", "status": "пройдено", "mandatory": true, "depends": ["vars"], "meta": "пройдено 9 жовтня", "weak_count": 1},
+    {"id": "cond", "title": "Умови", "status": "в процесі", "mandatory": true, "depends": ["types"], "meta": "урок 1 з 2", "weak_count": 0},
+    {"id": "loops", "title": "Цикли", "status": "не почато", "mandatory": true, "depends": ["cond"], "meta": "", "weak_count": 0},
+    {"id": "funcs", "title": "Функції", "status": "не почато", "mandatory": true, "depends": ["loops"], "meta": "", "weak_count": 0}
+  ],
+  "repeat": [
+    {"concept": "Типи даних", "wrong": "\"5\" + 3", "right": "int(\"5\") + 3", "streak": 1, "of": 3, "next_due": "2026-10-22"}
+  ]
+}

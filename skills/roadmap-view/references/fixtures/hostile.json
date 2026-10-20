@@ -1,0 +1,20 @@
+{
+  "project": "<script>alert(2)</script>Проєкт",
+  "goal": "\"ціль\" & <u>підкреслено</u>",
+  "goal_title": "</script><b>ціль</b>",
+  "updated": "2026-10-20",
+  "next_step": {
+    "title": "</script><script>alert(3)</script>",
+    "hint": "Напиши «<img src=x onerror=alert(4)>» і все"
+  },
+  "nodes": [
+    {"id": "x1", "title": "</script><img src=x onerror=alert(1)>", "status": "пройдено", "mandatory": true, "depends": [], "meta": "<i>meta</i>", "weak_count": 0},
+    {"id": "x2", "title": "\"лапки\" & <b>", "status": "в процесі", "mandatory": true, "depends": ["x1"], "meta": "урок 1 з 9", "weak_count": 3},
+    {"id": "long", "title": "Дуже довга назва вузла, яку хтось вставив з конспекту без скорочення, щоб перевірити перенос і обрізання підпису", "status": "не почато", "mandatory": true, "depends": ["x2"], "meta": "", "weak_count": 0},
+    {"id": "a", "title": "Вузол A", "status": "не почато", "mandatory": true, "depends": ["b"], "meta": "", "weak_count": 0},
+    {"id": "b", "title": "Вузол B", "status": "не почато", "mandatory": true, "depends": ["a", "ghost"], "meta": "", "weak_count": 0}
+  ],
+  "repeat": [
+    {"concept": "<script>alert(5)</script>", "wrong": "<b>bold</b>", "right": "&amp;", "streak": 5, "of": 3, "next_due": "завтра?"}
+  ]
+}

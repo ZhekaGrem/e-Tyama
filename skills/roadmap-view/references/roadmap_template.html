@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Роадмапа навчання</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF0F3; --surface:#F6F8FA; --raised:#FCFDFE;
+  --ink:#18202B; --ink-2:rgba(24,32,43,.74); --ink-3:rgba(24,32,43,.60);
+  --line:rgba(24,32,43,.12); --rail:rgba(24,32,43,.18); --rail-opt:rgba(24,32,43,.42);
+  --accent:#1F6F5C; --accent-soft:rgba(31,111,92,.14); --accent-ink:#F1FAF7;
+  --lock:#DCE1E6;
+  --shadow:0 1px 2px rgba(30,44,62,.08),0 10px 28px rgba(30,44,62,.07);
+  --f:"Onest","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12161C; --surface:#181D25; --raised:#212833;
+    --ink:#E3E7EC; --ink-2:rgba(227,231,236,.76); --ink-3:rgba(227,231,236,.60);
+    --line:rgba(227,231,236,.10); --rail:rgba(227,231,236,.16); --rail-opt:rgba(227,231,236,.40);
+    --accent:#4CC0A5; --accent-soft:rgba(76,192,165,.16); --accent-ink:#0B1F1A;
+    --lock:#2A323E;
+    --shadow:0 1px 0 rgba(255,255,255,.04) inset;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12161C; --surface:#181D25; --raised:#212833;
+  --ink:#E3E7EC; --ink-2:rgba(227,231,236,.76); --ink-3:rgba(227,231,236,.60);
+  --line:rgba(227,231,236,.10); --rail:rgba(227,231,236,.16); --rail-opt:rgba(227,231,236,.40);
+  --accent:#4CC0A5; --accent-soft:rgba(76,192,165,.16); --accent-ink:#0B1F1A;
+  --lock:#2A323E;
+  --shadow:0 1px 0 rgba(255,255,255,.04) inset;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:40px 16px 64px}
+.cap{font-size:12px;line-height:1.8;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+h1{font-size:40px;line-height:.98;letter-spacing:-.03em;font-weight:600;margin:6px 0 10px;overflow-wrap:anywhere}
+.goal{color:var(--ink-2);margin:0;overflow-wrap:anywhere}
+.goal b{color:var(--ink);font-weight:600}
+.upd{margin:4px 0 0;color:var(--ink-3);font-size:13px}
+
+.next{margin:28px 0 8px;background:var(--raised);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:start}
+.next[hidden]{display:none}
+.next .ico{grid-row:span 3;width:40px;height:40px;border-radius:12px;background:var(--accent);display:grid;place-items:center}
+.next .cap{font-size:11px}
+.next h2{font-size:20px;line-height:1.1;letter-spacing:-.02em;font-weight:600;margin:2px 0 4px;overflow-wrap:anywhere}
+.next p{margin:0;color:var(--ink-2);font-size:15px;overflow-wrap:anywhere}
+.next kbd{font:inherit;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:1px 8px;border-radius:6px}
+
+.map{margin-top:28px;background:var(--surface);border-radius:20px;padding:12px 8px 4px;position:relative}
+.map[hidden]{display:none}
+.map-scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+.map svg{display:block;height:auto;margin:0 auto}
+.map text{paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
+.map .t{font:600 15px var(--f);fill:var(--ink);letter-spacing:-.01em}
+.map .t.big{font-size:18px}
+.map .t.opt{font-weight:400}
+.map .m{font:400 12.5px var(--f);fill:var(--ink-3)}
+.map .m.acc{fill:var(--accent);font-weight:600}
+.map .chip{font:600 11px var(--f);letter-spacing:.16em;fill:var(--accent-ink);stroke:none}
+.halo{fill:var(--accent);opacity:.16;transform-origin:center;transform-box:fill-box;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(.85);opacity:.22}50%{transform:scale(1.15);opacity:.08}}
+@media (prefers-reduced-motion: reduce){.halo{animation:none}}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;padding:10px 14px 12px;border-top:1px solid var(--line);margin-top:4px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+
+.empty{margin-top:28px;background:var(--surface);border-radius:20px;padding:36px 24px;display:grid;justify-items:center;text-align:center;gap:6px}
+.empty[hidden]{display:none}
+.empty h2{font-size:20px;line-height:1.1;letter-spacing:-.02em;font-weight:600;margin:10px 0 0}
+.empty p{margin:0;color:var(--ink-2);font-size:15px;max-width:420px}
+
+.rep{margin-top:28px}
+.rep h3{margin:0 0 4px;font-size:24px;line-height:1.05;letter-spacing:-.02em;font-weight:600}
+.rep-sub{margin:0 0 12px;color:var(--ink-3);font-size:14px}
+.rep-none{margin:0;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);color:var(--ink-2);font-size:15px}
+.row{display:grid;grid-template-columns:1fr auto;gap:2px 16px;padding:14px 0;border-top:1px solid var(--line)}
+.row:last-child{border-bottom:1px solid var(--line)}
+.row .what{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.row .what s{color:var(--ink-3);font-weight:400;text-decoration-thickness:1.5px}
+.row .what svg{vertical-align:middle;margin:0 4px}
+.row .meta{color:var(--ink-3);font-size:13px;grid-column:1;overflow-wrap:anywhere}
+.bar{grid-row:span 2;align-self:center;display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.seg{display:flex;gap:3px}
+.seg i{width:18px;height:6px;border-radius:3px;background:var(--rail)}
+.seg i.on{background:var(--accent)}
+@media (max-width:480px){
+  h1{font-size:32px}
+  .wrap{padding-top:28px}
+  .next{padding:16px}
+  .seg i{width:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="cap">Проєкт навчання</div>
+  <h1 id="project">Роадмапа навчання</h1>
+  <p class="goal" id="goal-line"></p>
+  <p class="upd" id="updated" hidden></p>
+
+  <div class="next" id="next" hidden>
+    <div class="ico">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </div>
+    <div class="cap">Наступний крок</div>
+    <h2 id="next-title"></h2>
+    <p id="next-hint"></p>
+  </div>
+
+  <div class="map" id="map" hidden>
+    <div class="map-scroll" id="map-scroll">
+      <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Карта шляху навчання"></svg>
+    </div>
+    <div class="legend">
+      <span><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="var(--accent)"/><path d="M5 8 l2 2 l4 -4" fill="none" stroke="var(--accent-ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>пройдено</span>
+      <span><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="5.5" fill="none" stroke="var(--accent)" stroke-width="3"/></svg>в процесі</span>
+      <span><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="var(--ink-3)" stroke-width="2"/></svg>доступно</span>
+      <span><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="var(--lock)"/></svg>чекає на попереднє</span>
+      <span><svg width="28" height="10" aria-hidden="true"><line x1="2" y1="5" x2="26" y2="5" stroke="var(--rail)" stroke-width="5" stroke-linecap="round"/></svg>обов'язково</span>
+      <span><svg width="28" height="10" aria-hidden="true"><line x1="2" y1="5" x2="26" y2="5" stroke="var(--rail-opt)" stroke-width="3" stroke-dasharray="2 6" stroke-linecap="round"/></svg>опційно</span>
+    </div>
+  </div>
+
+  <div class="empty" id="empty" hidden>
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="24" cy="10" r="5"/><circle cx="24" cy="38" r="5" stroke-dasharray="3 3"/><path d="M24 15 V33" stroke-dasharray="2 5"/></svg>
+    <h2 id="empty-title">Роадмапу ще не складено</h2>
+    <p id="empty-text">Вузли з'являться тут, щойно ти затвердиш шлях навчання в чаті.</p>
+  </div>
+
+  <section class="rep" id="rep" hidden>
+    <div class="cap">Пам'ять</div>
+    <h3>На повторі</h3>
+    <p class="rep-sub">Помилка зникає зі списку після 3 правильних розв'язань у різні дні.</p>
+    <div id="rep-list"></div>
+  </section>
+
+</div>
+
+<script type="application/json" id="roadmap-data">__ROADMAP_DATA__</script>
+
+<script id="roadmap-layout">
+// Pure functions only: no DOM, no globals besides these declarations.
+// The page and the Node test both run this script as is.
+var RM_DONE = 'пройдено', RM_NOW = 'в процесі', RM_TODO = 'не почато';
+var RM_MONTHS = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня',
+  'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'];
+
+function rmStr(v) { return v == null ? '' : String(v).trim(); }
+
+function rmPlural(n, one, few, many) {
+  var a = Math.abs(n) % 100, b = a % 10;
+  if (a > 10 && a < 20) return many;
+  if (b === 1) return one;
+  if (b >= 2 && b <= 4) return few;
+  return many;
+}
+
+function rmJoinNames(list) {
+  if (list.length <= 1) return list.join('');
+  if (list.length === 2) return list[0] + ' і ' + list[1];
+  if (list.length === 3) return list[0] + ', ' + list[1] + ' і ' + list[2];
+  return list[0] + ', ' + list[1] + ' і ще ' + (list.length - 2);
+}
+
+// Cleans the raw node list: drops nodes without id and duplicate ids, keeps only
+// known dependencies, breaks cycles on the edge that closes them. Every dropped
+// dependency is written into the node's issues so the page can say so.
+function sanitizeNodes(raw) {
+  var list = Array.isArray(raw) ? raw : [];
+  var nodes = [], byId = Object.create(null);
+  list.forEach(function (r) {
+    if (!r || typeof r !== 'object') return;
+    var id = rmStr(r.id);
+    if (!id || byId[id]) return;
+    var status = rmStr(r.status);
+    if (status !== RM_DONE && status !== RM_NOW) status = RM_TODO;
+    var weak = Math.floor(Number(r.weak_count));
+    var n = {
+      id: id, title: rmStr(r.title) || id, status: status,
+      mandatory: r.mandatory !== false, meta: rmStr(r.meta),
+      weak: weak > 0 ? weak : 0, rawDeps: Array.isArray(r.depends) ? r.depends : [],
+      deps: [], issues: [], index: nodes.length
+    };
+    nodes.push(n); byId[id] = n;
+  });
+  nodes.forEach(function (n) {
+    n.rawDeps.forEach(function (d) {
+      d = rmStr(d);
+      if (!d) return;
+      if (d === n.id) n.issues.push('залежність від себе пропущено');
+      else if (!byId[d]) n.issues.push('невідома залежність ' + d);
+      else if (n.deps.indexOf(d) < 0) n.deps.push(d);
+    });
+  });
+  var color = Object.create(null);
+  function visit(n) {
+    color[n.id] = 1;
+    for (var k = 0; k < n.deps.length; k++) {
+      var d = byId[n.deps[k]];
+      if (color[d.id] === 1) {
+        n.issues.push('цикл: залежність від «' + d.title + '» пропущено');
+        n.deps.splice(k, 1); k--;
+      } else if (!color[d.id]) visit(d);
+    }
+    color[n.id] = 2;
+  }
+  nodes.forEach(function (n) { if (!color[n.id]) visit(n); });
+  return { nodes: nodes, byId: byId };
+}
+
+function rmStates(s) {
+  var out = Object.create(null);
+  s.nodes.forEach(function (n) {
+    if (n.status === RM_DONE) out[n.id] = 'done';
+    else if (n.status === RM_NOW) out[n.id] = 'now';
+    else out[n.id] = n.deps.every(function (d) { return s.byId[d].status === RM_DONE; }) ? 'available' : 'locked';
+  });
+  return out;
+}
+
+function deriveStates(nodes) { return rmStates(sanitizeNodes(nodes)); }
+
+function countMandatory(data) {
+  var s = sanitizeNodes(data && data.nodes);
+  var m = s.nodes.filter(function (n) { return n.mandatory; });
+  return { total: m.length, done: m.filter(function (n) { return n.status === RM_DONE; }).length };
+}
+
+function rmParseDate(v) {
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(rmStr(v));
+  if (!m) return null;
+  var y = +m[1], mo = +m[2], d = +m[3], t = Date.UTC(y, mo - 1, d), x = new Date(t);
+  if (x.getUTCMonth() !== mo - 1 || x.getUTCDate() !== d) return null;
+  return { y: y, m: mo, d: d, t: t };
+}
+
+function formatDay(v, withYear) {
+  var p = rmParseDate(v);
+  if (!p) return rmStr(v);
+  return p.d + ' ' + RM_MONTHS[p.m - 1] + (withYear ? ' ' + p.y : '');
+}
+
+function dueText(due, today) {
+  var d = rmParseDate(due), t = rmParseDate(today);
+  if (!d) return rmStr(due) ? 'повтор ' + rmStr(due) : 'дата повтору не вказана';
+  if (!t) return 'повтор ' + formatDay(due, true);
+  var diff = Math.round((d.t - t.t) / 86400000);
+  var day = formatDay(due, d.y !== t.y);
+  if (diff === 0) return 'повтор сьогодні';
+  if (diff === 1) return 'повтор завтра, ' + day;
+  if (diff < 0) return 'повтор уже настав, ' + day;
+  return 'повтор ' + day;
+}
+
+// Glyph widths measured against Onest in Chrome, kept a little generous so the
+// system fallback font still fits.
+function rmTextWidth(text, size, bold) {
+  var w = 0;
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i];
+    if (/[ilj.,:;'!|()\[\]\s«»"`-]/.test(ch)) w += 0.27;
+    else if (/[mwMWшщжмюфШЩЖМЮФ]/.test(ch)) w += 0.9;
+    else if (/[A-ZА-ЯІЇЄҐ0-9]/.test(ch)) w += 0.6;
+    else w += 0.5;
+  }
+  return w * size * (bold ? 1.05 : 1);
+}
+
+function rmWrap(text, maxW, size, bold, maxLines) {
+  var words = rmStr(text).split(/\s+/).filter(Boolean), lines = [], line = '';
+  function fits(s) { return rmTextWidth(s, size, bold) <= maxW; }
+  words.forEach(function (w) {
+    var cand = line ? line + ' ' + w : w;
+    if (fits(cand)) { line = cand; return; }
+    if (line) lines.push(line);
+    line = w;
+    while (!fits(line)) {
+      var k = line.length - 1;
+      while (k > 1 && !fits(line.slice(0, k))) k--;
+      lines.push(line.slice(0, k)); line = line.slice(k);
+    }
+  });
+  if (line) lines.push(line);
+  var cut = lines.length > maxLines;
+  if (cut) {
+    lines = lines.slice(0, maxLines);
+    var last = lines[maxLines - 1];
+    while (last.length > 1 && !fits(last + '…')) last = last.slice(0, -1).replace(/\s+$/, '');
+    lines[maxLines - 1] = last + '…';
+  }
+  return { lines: lines, cut: cut };
+}
+
+// Label of one node relative to its centre: lines with baselines, box, chip.
+function rmLabel(rec, anchor, LW) {
+  var big = rec.state === 'now' && rec.mandatory && !rec.isGoal;
+  var tcls = rec.isGoal ? 't' : big ? 't big' : rec.mandatory ? 't' : 't opt';
+  var tsize = big ? 18 : 15, tbold = tcls !== 't opt';
+  var maxW = rec.isGoal ? Math.max(LW, 260) : LW;
+  var wt = rmWrap(rec.title, maxW, tsize, tbold, LW < 120 ? 3 : 2);
+  var wm = rmWrap(rec.meta, maxW, 12.5, false, 3);
+  var first = anchor === 'middle' ? rec.r + 25 : (big ? -5 : -4), y = first, lines = [];
+  wt.lines.forEach(function (t, i) { if (i) y += tsize + 3; lines.push({ text: t, cls: tcls, dy: y, size: tsize, bold: tbold }); });
+  wm.lines.forEach(function (t, i) { y += i ? 16 : 19; lines.push({ text: t, cls: 'm', dy: y, size: 12.5, bold: false }); });
+  var wn = rmWrap(rec.note || '', maxW, 12.5, true, 2);
+  wn.lines.forEach(function (t, i) { y += i ? 16 : 18; lines.push({ text: t, cls: 'm acc', dy: y, size: 12.5, bold: true }); });
+  var width = 0;
+  lines.forEach(function (l) { width = Math.max(width, rmTextWidth(l.text, l.size, l.bold)); });
+  var top = first - tsize * 0.8, chip = null;
+  if (big) { chip = { w: 72, h: 20, dy: first - 51 }; top = chip.dy; width = Math.max(width, 72); }
+  return { lines: lines, width: width + 4, top: top, bottom: y + 5, chip: chip, cut: wt.cut || wm.cut };
+}
+
+function rmPlace(rec, x, y, anchor, LW) {
+  var lab = rmLabel(rec, anchor, LW);
+  var gap = rec.r + 13;
+  var lx = anchor === 'start' ? x + gap : anchor === 'end' ? x - gap : x;
+  var x0 = anchor === 'start' ? lx : anchor === 'end' ? lx - lab.width : x - lab.width / 2;
+  rec.x = x; rec.y = y; rec.labelAnchor = anchor; rec.truncated = lab.cut;
+  rec.lines = lab.lines.map(function (l) { return { text: l.text, cls: l.cls, x: lx, y: y + l.dy, anchor: anchor }; });
+  rec.chip = lab.chip ? { x: anchor === 'end' ? lx - lab.chip.w : anchor === 'middle' ? x - lab.chip.w / 2 : lx, y: y + lab.chip.dy, w: lab.chip.w, h: lab.chip.h } : null;
+  rec.labelBox = { x0: x0, y0: y + lab.top, x1: x0 + lab.width, y1: y + lab.bottom };
+  rec.nodeBox = { x0: x - rec.r, y0: y - rec.r, x1: x + rec.r, y1: y + rec.r };
+  return rec;
+}
+
+function rmBezier(seg, t) {
+  var u = 1 - t;
+  return {
+    x: u * u * u * seg[0].x + 3 * u * u * t * seg[1].x + 3 * u * t * t * seg[2].x + t * t * t * seg[3].x,
+    y: u * u * u * seg[0].y + 3 * u * u * t * seg[1].y + 3 * u * t * t * seg[2].y + t * t * t * seg[3].y
+  };
+}
+
+function rmSamples(segs) {
+  var pts = [];
+  segs.forEach(function (seg) { for (var t = 0.05; t < 1; t += 0.05) pts.push(rmBezier(seg, t)); });
+  return pts;
+}
+
+function rmLine(a, b) { return [a, a, b, b]; }
+
+function layoutRoadmap(data, opts) {
+  opts = opts || {};
+  var LW = Number(opts.labelWidth) > 0 ? Number(opts.labelWidth) : 150;
+  var compact = LW < 120;
+  var S2 = compact ? 60 : 110;          // half distance of a pair of siblings
+  var S3 = LW + 72;                     // step for three and more siblings
+  var BASE = 116;                       // minimal distance between rows
+  var s = sanitizeNodes(data && data.nodes);
+  if (!s.nodes.length) return { nodes: [], edges: [], width: 0, height: 0 };
+  var states = rmStates(s);
+
+  var layerOf = Object.create(null);
+  function layer(n) {
+    if (layerOf[n.id] != null) return layerOf[n.id];
+    var v = 0;
+    n.deps.forEach(function (d) { v = Math.max(v, layer(s.byId[d]) + 1); });
+    return (layerOf[n.id] = v);
+  }
+  s.nodes.forEach(layer);
+
+  var R = Object.create(null);
+  var recs = s.nodes.map(function (n) {
+    var state = states[n.id];
+    var waiting = n.deps.filter(function (d) { return s.byId[d].status !== RM_DONE; })
+      .map(function (d) { return s.byId[d].title; });
+    var base;
+    if (state === 'locked') base = 'чекає на ' + rmJoinNames(waiting);
+    else if (state === 'done') base = n.meta || 'пройдено';
+    else if (state === 'now') base = n.meta || 'в процесі';
+    else base = n.mandatory ? (n.meta || 'доступно') : 'доступно';
+    if (!n.mandatory) base = 'опційно, ' + base;
+    var meta = [base].concat(n.issues).join(', ');
+    var rec = {
+      id: n.id, title: n.title, meta: meta, mandatory: n.mandatory, state: state,
+      x: 0, y: 0, side: 'trunk', isGoal: false, src: n, layer: layerOf[n.id],
+      note: n.weak ? n.weak + ' ' + rmPlural(n.weak, 'помилка', 'помилки', 'помилок') + ' на повтор' : '',
+      r: !n.mandatory ? 10 : state === 'now' ? 18 : 13
+    };
+    R[n.id] = rec;
+    return rec;
+  });
+
+  var mand = recs.filter(function (r) { return r.mandatory; });
+  var opt = recs.filter(function (r) { return !r.mandatory; });
+  var maxLayer = 0, maxMand = -1;
+  recs.forEach(function (r) { maxLayer = Math.max(maxLayer, r.layer); });
+  mand.forEach(function (r) { maxMand = Math.max(maxMand, r.layer); });
+  var goalLayer = (mand.length ? maxMand : maxLayer) + 1;
+  var rows = Math.max(maxLayer, goalLayer) + 1;
+
+  // Mandatory nodes: symmetric around the trunk, ordered by their parents.
+  for (var l = 0; l <= maxLayer; l++) {
+    var row = mand.filter(function (r) { return r.layer === l; });
+    row.forEach(function (r) {
+      var ps = r.src.deps.map(function (d) { return R[d]; }).filter(function (p) { return p.mandatory; });
+      r.bary = ps.length ? ps.reduce(function (a, p) { return a + p.x; }, 0) / ps.length : 0;
+    });
+    row.sort(function (a, b) { return (a.bary - b.bary) || (a.src.index - b.src.index); });
+    var k = row.length;
+    row.forEach(function (r, i) {
+      r.x = k === 1 ? 0 : k === 2 ? (i ? S2 : -S2) : (i - (k - 1) / 2) * S3;
+      r.side = r.x < 0 ? 'left' : r.x > 0 ? 'right' : 'trunk';
+    });
+  }
+
+  // Sinks and the goal node.
+  var needed = Object.create(null);
+  mand.forEach(function (r) { r.src.deps.forEach(function (d) { needed[d] = true; }); });
+  var sinks = mand.filter(function (r) { return !needed[r.id]; });
+  var goalId = '__goal__';
+  while (R[goalId]) goalId += '_';
+  var allDone = mand.length > 0 && mand.every(function (r) { return r.state === 'done'; });
+  var waitSinks = sinks.filter(function (r) { return r.state !== 'done'; }).map(function (r) { return r.title; });
+  var goal = {
+    id: goalId, title: rmStr(data.goal_title) || rmStr(data.goal) || 'Ціль',
+    meta: !mand.length ? 'ціль' : allDone ? 'ціль, усі обов\'язкові кроки пройдено'
+      : waitSinks.length ? 'ціль, чекає на ' + rmJoinNames(waitSinks) : 'ціль, чекає на решту кроків',
+    mandatory: true, state: allDone ? 'done' : 'locked', x: 0, y: 0, side: 'trunk',
+    isGoal: true, layer: goalLayer, note: '', r: 20
+  };
+
+  // Rows: enough room for the labels above and below.
+  var top = [], bottom = [];
+  for (var i = 0; i < rows; i++) { top.push(-24); bottom.push(24); }
+  mand.forEach(function (r) {
+    var lab = rmLabel(r, r.side === 'left' ? 'end' : 'start', LW);
+    top[r.layer] = Math.min(top[r.layer], lab.top, -r.r - 8);
+    bottom[r.layer] = Math.max(bottom[r.layer], lab.bottom, r.r + 8);
+  });
+  var gl = rmLabel(goal, 'middle', LW);
+  top[goalLayer] = Math.min(top[goalLayer], -goal.r - 8);
+  bottom[goalLayer] = Math.max(bottom[goalLayer], gl.bottom);
+  var rowY = [0];
+  for (i = 1; i < rows; i++) rowY.push(rowY[i - 1] + Math.max(BASE, bottom[i - 1] - top[i] + 24));
+
+  mand.forEach(function (r) { rmPlace(r, r.x, rowY[r.layer], r.side === 'left' ? 'end' : 'start', LW); });
+  rmPlace(goal, 0, rowY[goalLayer], 'middle', LW);
+
+  // Mandatory rails, with a detour when a long rail would run through a node.
+  function railSegs(p, c) {
+    var dy = c.y - p.y;
+    var simple = p.x === c.x ? [rmLine(p, c)]
+      : [[p, { x: p.x, y: p.y + dy / 2 }, { x: c.x, y: p.y + dy / 2 }, c]];
+    var between = mand.concat([goal]).filter(function (n) { return n !== p && n !== c && n.y > p.y && n.y < c.y; });
+    function clear(segs) {
+      return rmSamples(segs).every(function (q) {
+        return between.every(function (n) {
+          var b = n.labelBox;
+          var inLabel = q.x > b.x0 && q.x < b.x1 && q.y > b.y0 && q.y < b.y1;
+          return Math.hypot(q.x - n.x, q.y - n.y) > n.r + 14 && !inLabel;
+        });
+      });
+    }
+    if (!between.length || clear(simple)) return simple;
+    var dirs = p.x < 0 ? [1, -1] : [-1, 1], h = Math.min(58, dy / 4);
+    for (var step = 1; step <= 8; step++) {
+      for (var j = 0; j < 2; j++) {
+        var lane = p.x + dirs[j] * step * 56;
+        var a = { x: lane, y: p.y + h }, b2 = { x: lane, y: c.y - h };
+        var segs = [[p, { x: p.x, y: p.y + h / 2 }, { x: lane, y: p.y + h / 2 }, a], rmLine(a, b2),
+          [b2, { x: lane, y: c.y - h / 2 }, { x: c.x, y: c.y - h / 2 }, c]];
+        if (clear(segs)) return segs;
+      }
+    }
+    return simple;
+  }
+
+  var edges = [];
+  recs.forEach(function (c) {
+    c.src.deps.forEach(function (d) {
+      var p = R[d];
+      edges.push({ from: p.id, to: c.id, kind: p.mandatory && c.mandatory ? 'mandatory' : 'optional',
+        done: p.state === 'done' && (c.state === 'done' || c.state === 'now'), p: p, c: c });
+    });
+  });
+  sinks.forEach(function (p) {
+    edges.push({ from: p.id, to: goal.id, kind: 'mandatory', done: p.state === 'done', p: p, c: goal });
+  });
+  edges.forEach(function (e) { if (e.kind === 'mandatory') e.segs = railSegs(e.p, e.c); });
+
+  // Obstacles for optional nodes: mandatory nodes, labels, rails.
+  var obstacles = [];
+  function addBox(b, pad) { obstacles.push({ x0: b.x0 - pad, y0: b.y0 - pad, x1: b.x1 + pad, y1: b.y1 + pad }); }
+  mand.concat([goal]).forEach(function (r) {
+    addBox(r.labelBox, 4);
+    addBox(r.nodeBox, r.state === 'now' && !r.isGoal ? 14 : 6);
+  });
+  edges.forEach(function (e) {
+    if (e.segs) rmSamples(e.segs).forEach(function (q) { addBox({ x0: q.x, y0: q.y, x1: q.x, y1: q.y }, 6); });
+  });
+  var centers = mand.concat([goal]).map(function (r) { return { x: r.x, y: r.y }; });
+  var placedRecs = mand.concat([goal]);
+  function inBox(q, b, pad) { return q.x > b.x0 - pad && q.x < b.x1 + pad && q.y > b.y0 - pad && q.y < b.y1 + pad; }
+  function free(r, parents, strict) {
+    var boxes = [r.labelBox, r.nodeBox];
+    var hit = obstacles.some(function (o) {
+      return boxes.some(function (b) { return b.x0 < o.x1 && o.x0 < b.x1 && b.y0 < o.y1 && o.y0 < b.y1; });
+    });
+    if (hit || !centers.every(function (q) { return Math.hypot(q.x - r.x, q.y - r.y) >= 60; })) return false;
+    if (!strict) return true;
+    // The dashed edge to this node must not run through any label or node.
+    return parents.every(function (p) {
+      return rmSamples(optSegs(p, r)).every(function (q) {
+        if (Math.hypot(q.x - p.x, q.y - p.y) < p.r + 6 || Math.hypot(q.x - r.x, q.y - r.y) < r.r + 4) return true;
+        return placedRecs.every(function (n) { return !inBox(q, n.labelBox, 3) && (n === p || !inBox(q, n.nodeBox, 4)); });
+      });
+    });
+  }
+
+  // Optional nodes: off to the side, in the band above their row, never on a rail.
+  var perSide = Object.create(null);
+  opt.sort(function (a, b) { return (a.layer - b.layer) || (a.src.index - b.src.index); });
+  opt.forEach(function (r) {
+    var ps = r.src.deps.map(function (d) { return R[d]; });
+    var px = ps.length ? ps.reduce(function (a, p) { return a + p.x; }, 0) / ps.length : 0;
+    var key = r.layer, cnt = perSide[key] || (perSide[key] = { left: 0, right: 0 });
+    var pref = px < 0 ? 'left' : px > 0 ? 'right' : (cnt.left <= cnt.right ? 'left' : 'right');
+    var sides = pref === 'left' ? ['left', 'right'] : ['right', 'left'];
+    var band = r.layer === 0 ? rowY[0] - BASE / 2 : (rowY[r.layer - 1] + rowY[r.layer]) / 2;
+    var ys = [band, rowY[r.layer]], placed = false;
+    // First pass: close by and with a clean dashed edge. Second pass: anywhere free.
+    var passes = [{ strict: true, steps: 30 }, { strict: false, steps: 160 }];
+    for (var pi = 0; pi < passes.length && !placed; pi++) {
+      for (var yi = 0; yi < ys.length && !placed; yi++) {
+        for (var si = 0; si < 2 && !placed; si++) {
+          var dir = sides[si] === 'left' ? -1 : 1;
+          var start = dir < 0 ? Math.min(px, 0) - S2 : Math.max(px, 0) + S2;
+          for (var st = 0; st < passes[pi].steps && !placed; st++) {
+            rmPlace(r, start + dir * st * 10, ys[yi], dir < 0 ? 'end' : 'start', LW);
+            if (free(r, ps, passes[pi].strict)) { placed = true; r.side = dir < 0 ? 'opt-left' : 'opt-right'; cnt[sides[si]]++; }
+          }
+        }
+      }
+    }
+    if (!placed) {
+      var far = 0;
+      obstacles.forEach(function (o) { far = Math.min(far, o.x0); });
+      rmPlace(r, far - 40, band, 'end', LW);
+      r.side = 'opt-left';
+    }
+    addBox(r.labelBox, 4); addBox(r.nodeBox, 6);
+    centers.push({ x: r.x, y: r.y });
+    placedRecs.push(r);
+  });
+
+  // Optional edges. Towards the side where the parent's label is, the edge first
+  // drops below the label, then turns; otherwise it leaves sideways (as in the mockup).
+  function optSegs(p, c) {
+    var dx = c.x - p.x, dy = c.y - p.y;
+    if (c.mandatory) return [[p, { x: p.x, y: p.y + dy / 2 }, { x: c.x, y: c.y - dy / 2 }, c]];
+    var labelDir = p.labelAnchor === 'start' ? 1 : p.labelAnchor === 'end' ? -1 : 0;
+    if (labelDir && (dx > 0 ? 1 : -1) === labelDir) {
+      return [[p, { x: p.x, y: p.y + 0.85 * dy }, { x: p.x + 0.4 * dx, y: c.y }, c]];
+    }
+    return [[p, { x: p.x + 0.65 * dx, y: p.y }, { x: c.x, y: p.y + 0.3 * dy }, c]];
+  }
+  edges.forEach(function (e) { if (!e.segs) e.segs = optSegs(e.p, e.c); });
+
+  // Fit everything into a canvas with a margin.
+  var all = recs.concat([goal]);
+  var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  function grow(x0, y0, x1, y1) { minX = Math.min(minX, x0); minY = Math.min(minY, y0); maxX = Math.max(maxX, x1); maxY = Math.max(maxY, y1); }
+  all.forEach(function (r) {
+    var halo = r.state === 'now' && r.mandatory && !r.isGoal ? 32 : r.r;
+    grow(r.x - halo, r.y - halo, r.x + halo, r.y + halo);
+    grow(r.labelBox.x0, r.labelBox.y0, r.labelBox.x1, r.labelBox.y1);
+  });
+  edges.forEach(function (e) { rmSamples(e.segs).forEach(function (q) { grow(q.x - 4, q.y - 4, q.x + 4, q.y + 4); }); });
+  var M = 16, ox = M - minX, oy = M - minY;
+  function rd(v) { return Math.round(v * 10) / 10; }
+  function sh(b) { return { x0: rd(b.x0 + ox), y0: rd(b.y0 + oy), x1: rd(b.x1 + ox), y1: rd(b.y1 + oy) }; }
+
+  var outNodes = all.map(function (r) {
+    return {
+      id: r.id, title: r.title, meta: r.meta, mandatory: r.mandatory, state: r.state,
+      x: rd(r.x + ox), y: rd(r.y + oy), side: r.side, isGoal: r.isGoal, r: r.r, note: r.note,
+      labelAnchor: r.labelAnchor, truncated: r.truncated,
+      lines: r.lines.map(function (l) { return { text: l.text, cls: l.cls, x: rd(l.x + ox), y: rd(l.y + oy), anchor: l.anchor }; }),
+      chip: r.chip ? { x: rd(r.chip.x + ox), y: rd(r.chip.y + oy), w: r.chip.w, h: r.chip.h } : null,
+      labelBox: sh(r.labelBox), nodeBox: sh(r.nodeBox)
+    };
+  });
+  var outEdges = edges.map(function (e) {
+    var d = '';
+    e.segs.forEach(function (g, i) {
+      if (!i) d += 'M' + rd(g[0].x + ox) + ' ' + rd(g[0].y + oy);
+      d += ' C' + [g[1], g[2], g[3]].map(function (q) { return rd(q.x + ox) + ' ' + rd(q.y + oy); }).join(' ');
+    });
+    return { from: e.from, to: e.to, kind: e.kind, done: e.done, d: d };
+  });
+  return { nodes: outNodes, edges: outEdges, width: Math.ceil(maxX - minX + 2 * M), height: Math.ceil(maxY - minY + 2 * M) };
+}
+</script>
+
+<script id="roadmap-render">
+(function () {
+  'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  var $ = function (id) { return document.getElementById(id); };
+
+  function svgEl(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function htmlEl(tag, cls, text, parent) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function s(v) { return v == null ? '' : String(v).trim(); }
+
+  var data = null;
+  try { data = JSON.parse($('roadmap-data').textContent); } catch (e) { data = null; }
+  if (!data || typeof data !== 'object') {
+    $('empty').hidden = false;
+    $('empty-title').textContent = 'Дані роадмапи не вставлено';
+    $('empty-text').textContent = 'Цей файл є шаблоном. Скіл roadmap-view підставляє в нього дані з пам\'яті проєкту.';
+    return;
+  }
+
+  // Header
+  var project = s(data.project);
+  if (project) { $('project').textContent = project; document.title = 'Роадмапа: ' + project; }
+  var gl = $('goal-line'), goal = s(data.goal).replace(/[.\s]+$/, '');
+  var cnt = countMandatory(data);
+  if (goal) {
+    gl.appendChild(document.createTextNode('Ціль: '));
+    htmlEl('b', null, goal, gl);
+    gl.appendChild(document.createTextNode('. '));
+  }
+  gl.appendChild(document.createTextNode(cnt.total
+    ? 'Обов\'язкових кроків ' + cnt.total + ', пройдено ' + cnt.done + '.'
+    : 'Обов\'язкових кроків поки немає.'));
+  if (s(data.updated)) { $('updated').hidden = false; $('updated').textContent = 'Оновлено ' + formatDay(data.updated, true); }
+
+  // Next step: «quoted» words in the hint become key-like chips.
+  var ns = data.next_step && typeof data.next_step === 'object' ? data.next_step : null;
+  if (ns && s(ns.title)) {
+    $('next').hidden = false;
+    $('next-title').textContent = s(ns.title);
+    var hint = $('next-hint'), parts = s(ns.hint).split(/«([^»]*)»/);
+    parts.forEach(function (p, i) {
+      if (i % 2) htmlEl('kbd', null, p, hint);
+      else if (p) hint.appendChild(document.createTextNode(p));
+    });
+  }
+
+  // Map
+  var nodesIn = Array.isArray(data.nodes) ? data.nodes : [];
+  var map = $('map'), scroller = $('map-scroll'), svg = $('map-svg');
+  var current = null, currentLW = 0;
+
+  function drawNode(g, n) {
+    var x = n.x, y = n.y;
+    if (n.isGoal) {
+      var done = n.state === 'done';
+      svgEl('circle', { cx: x, cy: y, r: 20, fill: done ? 'var(--accent)' : 'var(--raised)', stroke: done ? 'var(--accent)' : 'var(--rail)', 'stroke-width': 5 }, g);
+      svgEl('path', { d: 'M' + (x - 6) + ' ' + (y + 10) + ' V' + (y - 10) + ' M' + (x - 6) + ' ' + (y - 9) + ' h11 l-3 4 l3 4 h-11',
+        fill: 'none', stroke: done ? 'var(--accent-ink)' : 'var(--ink-2)', 'stroke-width': 1.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, g);
+      return;
+    }
+    if (!n.mandatory) {
+      if (n.state === 'done') {
+        svgEl('circle', { cx: x, cy: y, r: 10, fill: 'var(--accent)' }, g);
+        svgEl('path', { d: 'M' + (x - 4.5) + ' ' + y + ' l3 3 l6 -6', fill: 'none', stroke: 'var(--accent-ink)', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, g);
+      } else if (n.state === 'now') {
+        svgEl('circle', { cx: x, cy: y, r: 8.5, fill: 'var(--raised)', stroke: 'var(--accent)', 'stroke-width': 3 }, g);
+      } else {
+        svgEl('circle', { cx: x, cy: y, r: 10, fill: n.state === 'locked' ? 'var(--lock)' : 'var(--surface)', stroke: 'var(--rail-opt)', 'stroke-width': 2.5, 'stroke-dasharray': '3 3' }, g);
+      }
+      return;
+    }
+    if (n.state === 'done') {
+      svgEl('circle', { cx: x, cy: y, r: 13, fill: 'var(--accent)' }, g);
+      svgEl('path', { d: 'M' + (x - 6) + ' ' + y + ' l4 4 l8 -8', fill: 'none', stroke: 'var(--accent-ink)', 'stroke-width': 2.4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, g);
+    } else if (n.state === 'now') {
+      svgEl('circle', { 'class': 'halo', cx: x, cy: y, r: 32 }, g);
+      svgEl('circle', { cx: x, cy: y, r: 18, fill: 'var(--raised)', stroke: 'var(--accent)', 'stroke-width': 6 }, g);
+      svgEl('circle', { cx: x, cy: y, r: 6, fill: 'var(--accent)' }, g);
+    } else if (n.state === 'available') {
+      svgEl('circle', { cx: x, cy: y, r: 11.5, fill: 'var(--raised)', stroke: 'var(--ink-3)', 'stroke-width': 3 }, g);
+    } else {
+      svgEl('circle', { cx: x, cy: y, r: 13, fill: 'var(--lock)' }, g);
+      var lk = svgEl('g', { fill: 'none', stroke: 'var(--ink-3)', 'stroke-width': 1.6, 'stroke-linecap': 'round' }, g);
+      svgEl('path', { d: 'M' + (x - 4) + ' ' + (y - 1) + ' v-3 a4 4 0 0 1 8 0 v3' }, lk);
+      svgEl('rect', { x: x - 5.5, y: y - 1, width: 11, height: 7, rx: 1.5 }, lk);
+    }
+  }
+
+  function render(L) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    svg.setAttribute('viewBox', '0 0 ' + L.width + ' ' + L.height);
+    var gOpt = svgEl('g', { fill: 'none', 'stroke-width': 3, 'stroke-dasharray': '2 7', 'stroke-linecap': 'round' }, svg);
+    var gAhead = svgEl('g', { stroke: 'var(--rail)', 'stroke-width': 7, fill: 'none', 'stroke-linecap': 'round' }, svg);
+    var gDone = svgEl('g', { stroke: 'var(--accent)', 'stroke-width': 7, fill: 'none', 'stroke-linecap': 'round' }, svg);
+    L.edges.forEach(function (e) {
+      if (e.kind === 'optional') svgEl('path', { d: e.d, stroke: e.done ? 'var(--accent)' : 'var(--rail-opt)' }, gOpt);
+      else svgEl('path', { d: e.d }, e.done ? gDone : gAhead);
+    });
+    var gNodes = svgEl('g', {}, svg), gText = svgEl('g', {}, svg);
+    L.nodes.forEach(function (n) {
+      var g = svgEl('g', {}, gNodes);
+      var tip = svgEl('title', {}, g);
+      tip.textContent = n.title + '\n' + n.meta + (n.note ? '\n' + n.note : '');
+      drawNode(g, n);
+      var tg = svgEl('g', {}, gText);
+      var tip2 = svgEl('title', {}, tg);
+      tip2.textContent = tip.textContent;
+      if (n.chip) {
+        svgEl('rect', { x: n.chip.x, y: n.chip.y, width: n.chip.w, height: n.chip.h, rx: n.chip.h / 2, fill: 'var(--accent)' }, tg);
+        var ct = svgEl('text', { 'class': 'chip', x: n.chip.x + n.chip.w / 2, y: n.chip.y + 14, 'text-anchor': 'middle' }, tg);
+        ct.textContent = 'ВИ ТУТ';
+      }
+      n.lines.forEach(function (l) {
+        var t = svgEl('text', { 'class': l.cls, x: l.x, y: l.y, 'text-anchor': l.anchor }, tg);
+        t.textContent = l.text;
+      });
+    });
+  }
+
+  function availableWidth() { return Math.max(200, map.parentNode.clientWidth - 32 - 16); }
+
+  function fit() {
+    if (!current) return;
+    var wrapInner = map.parentNode.clientWidth - 32;
+    var vw = document.documentElement.clientWidth;
+    var want = Math.min(vw - 32, Math.max(wrapInner, current.width + 16));
+    map.style.width = want + 'px';
+    map.style.marginLeft = ((wrapInner - want) / 2) + 'px';
+    var avail = want - 16, W = current.width, sw;
+    if (W * 0.8 > avail) sw = W * 0.8;
+    else sw = Math.min(avail, W * 1.15);
+    svg.style.width = Math.round(sw) + 'px';
+    if (sw > avail) {
+      var now = current.nodes.filter(function (n) { return n.state === 'now' && n.mandatory && !n.isGoal; })[0];
+      if (now) scroller.scrollLeft = Math.max(0, now.x * (sw / W) - avail / 2);
+    }
+  }
+
+  function relayout() {
+    var lw = availableWidth() < 560 ? 100 : 150;
+    if (lw !== currentLW) {
+      currentLW = lw;
+      current = layoutRoadmap(data, { labelWidth: lw });
+      render(current);
+    }
+    fit();
+  }
+
+  var hasNodes = sanitizeNodes(nodesIn).nodes.length > 0;
+  if (hasNodes) {
+    map.hidden = false;
+    relayout();
+    var t = 0;
+    window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(relayout, 80); });
+  } else {
+    $('empty').hidden = false;
+  }
+
+  // Repeat list
+  var rep = Array.isArray(data.repeat) ? data.repeat.filter(function (r) { return r && typeof r === 'object'; }) : [];
+  if (hasNodes || rep.length) {
+    $('rep').hidden = false;
+    var list = $('rep-list');
+    if (!rep.length) htmlEl('p', 'rep-none', 'Зараз на повторі нічого немає.', list);
+    rep.forEach(function (r) {
+      var row = htmlEl('div', 'row', null, list);
+      var what = htmlEl('div', 'what', null, row);
+      htmlEl('s', null, s(r.wrong), what);
+      var arrow = svgEl('svg', { width: 14, height: 10, viewBox: '0 0 14 10', fill: 'none', stroke: 'currentColor', 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-label': 'правильно' }, what);
+      svgEl('path', { d: 'M1 5h11M8 1l4 4-4 4' }, arrow);
+      what.appendChild(document.createTextNode(s(r.right)));
+      var of = Math.min(10, Math.max(1, Math.floor(Number(r.of)) || 3));
+      var streak = Math.min(of, Math.max(0, Math.floor(Number(r.streak)) || 0));
+      var bar = htmlEl('div', 'bar', null, row);
+      var seg = htmlEl('span', 'seg', null, bar);
+      for (var i = 0; i < of; i++) htmlEl('i', i < streak ? 'on' : null, null, seg);
+      bar.appendChild(document.createTextNode(streak + ' з ' + of));
+      var meta = [s(r.concept), dueText(r.next_due, data.updated)].filter(Boolean).join(', ');
+      htmlEl('div', 'meta', meta, row);
+    });
+  }
+})();
+</script>
+</body>
+</html>
