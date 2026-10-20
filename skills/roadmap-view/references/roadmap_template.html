@@ -237,6 +237,9 @@ function countMandatory(data) {
   return { total: m.length, done: m.filter(function (n) { return n.status === RM_DONE; }).length };
 }
 
+// A repeat entry without a "was -> now" example shows only the concept name.
+function repeatHasExample(r) { return !!(rmStr(r && r.wrong) || rmStr(r && r.right)); }
+
 function rmParseDate(v) {
   var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(rmStr(v));
   if (!m) return null;
@@ -783,17 +786,22 @@ function layoutRoadmap(data, opts) {
     rep.forEach(function (r) {
       var row = htmlEl('div', 'row', null, list);
       var what = htmlEl('div', 'what', null, row);
-      htmlEl('s', null, s(r.wrong), what);
-      var arrow = svgEl('svg', { width: 14, height: 10, viewBox: '0 0 14 10', fill: 'none', stroke: 'currentColor', 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-label': 'правильно' }, what);
-      svgEl('path', { d: 'M1 5h11M8 1l4 4-4 4' }, arrow);
-      what.appendChild(document.createTextNode(s(r.right)));
+      var example = repeatHasExample(r);
+      if (example) {
+        htmlEl('s', null, s(r.wrong), what);
+        var arrow = svgEl('svg', { width: 14, height: 10, viewBox: '0 0 14 10', fill: 'none', stroke: 'currentColor', 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-label': 'правильно' }, what);
+        svgEl('path', { d: 'M1 5h11M8 1l4 4-4 4' }, arrow);
+        what.appendChild(document.createTextNode(s(r.right)));
+      } else {
+        what.appendChild(document.createTextNode(s(r.concept)));
+      }
       var of = Math.min(10, Math.max(1, Math.floor(Number(r.of)) || 3));
       var streak = Math.min(of, Math.max(0, Math.floor(Number(r.streak)) || 0));
       var bar = htmlEl('div', 'bar', null, row);
       var seg = htmlEl('span', 'seg', null, bar);
       for (var i = 0; i < of; i++) htmlEl('i', i < streak ? 'on' : null, null, seg);
       bar.appendChild(document.createTextNode(streak + ' з ' + of));
-      var meta = [s(r.concept), dueText(r.next_due, data.updated)].filter(Boolean).join(', ');
+      var meta = [example ? s(r.concept) : '', dueText(r.next_due, data.updated)].filter(Boolean).join(', ');
       htmlEl('div', 'meta', meta, row);
     });
   }

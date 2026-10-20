@@ -20,7 +20,7 @@ function scriptById(id) {
 
 const ctx = vm.createContext({});
 vm.runInContext(scriptById('roadmap-layout'), ctx);
-const { deriveStates, layoutRoadmap, countMandatory, dueText } = ctx;
+const { deriveStates, layoutRoadmap, countMandatory, dueText, repeatHasExample } = ctx;
 
 const linear5 = fixture('linear5');
 const branching12 = fixture('branching12');
@@ -177,4 +177,12 @@ test('repeat dates read relative to the update day', () => {
   assert.equal(dueText('2026-11-02', '2026-10-20'), 'повтор 2 листопада');
   assert.equal(dueText('2026-10-19', '2026-10-20'), 'повтор уже настав, 19 жовтня');
   assert.equal(dueText('2027-01-05', '2026-10-20'), 'повтор 5 січня 2027');
+});
+
+test('a repeat entry without wrong and right shows only the concept', () => {
+  assert.equal(repeatHasExample({ concept: 'c', wrong: '', right: '' }), false);
+  assert.equal(repeatHasExample({ concept: 'c' }), false);
+  assert.equal(repeatHasExample({ concept: 'c', wrong: '  ', right: null }), false);
+  assert.equal(repeatHasExample({ concept: 'c', wrong: 'did + went', right: 'did + go' }), true);
+  assert.equal(repeatHasExample({ concept: 'c', wrong: '', right: 'did + go' }), true);
 });
