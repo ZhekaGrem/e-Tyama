@@ -61,7 +61,7 @@ description: Use this skill whenever the user wants to test their understanding,
 
 ### 0. Розминка по трекеру
 
-Є `mastery.md`, а `memory.md` немає — виконай міграцію за правилом K канону.
+Є `mastery.md` (у `drive` — `mastery_<дата>`), а `memory.md` немає — виконай міграцію за правилом K канону.
 Прочитай розділ «Концепти» в `<category>/<topic>/memory.md` (для банку співбесід —
 `interview/<tech>/memory.md`)
 і пройди «На старті сесії» правила J канону: 1-2 питання по слабких концептах, у яких
