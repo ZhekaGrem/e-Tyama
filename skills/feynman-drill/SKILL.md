@@ -37,7 +37,8 @@ description: Use this skill whenever the user wants to deeply test their underst
 2. **Учень дійсно вже вчив це?** Якщо ні — зупинись і запропонуй `teach-concept` спочатку.
 3. **Цільова аудиторія заходу 3:** інтерв'юер на якій позиції? (junior / middle / senior — впливає на глибину)
 4. **Скільки часу маєш?** (повний drill = 20-30 хв; короткий = 1 захід)
-5. **Що каже трекер?** Прочитай `<topic>/mastery.md` і пройди «На старті сесії» правила J
+5. **Що каже трекер?** Є `mastery.md`, а `memory.md` немає — міграція за правилом K канону.
+   Далі прочитай розділ «Концепти» `<topic>/memory.md` і пройди «На старті сесії» правила J
    канону. Слабкі рядки цього концепту — це місця, куди провокації заходу 2-3 йдуть першими.
    Трекера немає — працюй як раніше
 
@@ -147,7 +148,7 @@ description: Use this skill whenever the user wants to deeply test their underst
 - Що робити далі:
   - Перечитати: <конкретні розділи>
   - Anki: <N карток на нові слабкі концепти — див. «Запис у трекер»>
-  - Повторити drill: <найближча дата з `mastery.md`>
+  - Повторити drill: <найближча дата з «Концепти»>
 
 ### Сильні сторони (важливо!)
 - <те що учень зрозумів **глибше** ніж у `_learn.md`>
@@ -157,7 +158,7 @@ description: Use this skill whenever the user wants to deeply test their underst
 
 ## Запис у трекер
 
-Після звіту онови `<topic>/mastery.md` за правилом J канону. Специфіка drill-а:
+Після звіту онови розділ «Концепти» `<topic>/memory.md` за правилом J канону. Специфіка drill-а:
 
 - **Один drill = один результат на концепт**, не по заходу: усі заходи чисто → ✅;
   діри виправив сам після провокації → ◐; діра лишилась після debrief → ❌
@@ -178,18 +179,18 @@ description: Use this skill whenever the user wants to deeply test their underst
 ## <YYYY-MM-DD> — Feynman <концепт>
 - Вердикт: <рівень>
 - Діри: ...
-- Наступний drill: <найближча дата з `mastery.md`>
+- Наступний drill: <найближча дата з «Концепти»>
 ```
 
-Діри концептів живуть у `mastery.md`, не в `MEMORY.md`. У `MEMORY.md` — лише міжтемний
+Діри концептів живуть у розділі «Концепти» `memory.md`, не в `MEMORY.md`. У `MEMORY.md` — лише міжтемний
 патерн: та сама діра в **різних темах** («систематично не бачить конкурентного доступу»).
 
 ---
 
 ## Інтеграції
 
-- **Читає:** `<topic>_learn.md`, `<topic>_plan.md`, `<topic>/mastery.md` (слабкі концепти — почни з них), `quiz_log.md`, `MEMORY.md` (профіль)
-- **Пише:** `<topic>/feynman_log.md`, `<topic>/mastery.md`, `<topic>/anki/<topic>_weak.txt`; `MEMORY.md` — лише міжтемні патерни
+- **Читає:** `<topic>_learn.md`, `<topic>_plan.md`, розділ «Концепти» `<topic>/memory.md` (слабкі концепти — почни з них), `quiz_log.md`, `MEMORY.md` (профіль)
+- **Пише:** `<topic>/feynman_log.md`, розділ «Концепти» `<topic>/memory.md`, `<topic>/anki/<topic>_weak.txt`; `MEMORY.md` — лише міжтемні патерни
 - **Викликає (рекомендує):**
   - `teach-concept` — якщо у заході 1 учень не зміг навіть аналогію
   - `recall-quiz` — на конкретні діри, виявлені у заході 2
@@ -216,4 +217,4 @@ description: Use this skill whenever the user wants to deeply test their underst
 3. У звіті — **конкретні** діри, не загальні?
 4. `feynman_log.md` оновлений?
 5. Запропоновано наступну дію (повтор / Anki / повернення до `_learn.md`)?
-6. Діри записані в `mastery.md` (правило J); у `MEMORY.md` — тільки міжтемні патерни?
+6. Діри записані в розділі «Концепти» `memory.md` (правило J); у `MEMORY.md` — тільки міжтемні патерни?

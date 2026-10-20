@@ -21,7 +21,8 @@
 │   ├── <тема>.html               # необов'язково: візуальна версія
 │   ├── quiz_log.md               # recall-quiz
 │   ├── feynman_log.md            # feynman-drill
-│   ├── mastery.md                # трекер майстерності: teach-concept / recall-quiz / feynman-drill
+│   ├── <тема>_roadmap.html       # roadmap-view
+│   ├── memory.md                 # пам'ять проєкту: правило K (ціль, роадмапа, концепти…)
 │   ├── build_log.md              # build-project-drill
 │   ├── audit_log.md              # course-audit
 │   ├── errors/                   # error-decoder, якщо просив зберегти
@@ -54,7 +55,7 @@ Tyama/
 │   ├── sql_plan.md
 │   ├── sql_learn.md
 │   ├── quiz_log.md
-│   └── mastery_2026-10-20        # трекер у Drive: серія знімків за датами
+│   └── memory_2026-10-20         # пам'ять проєкту у Drive: серія знімків за датами
 ├── interview/python/
 └── retro/
 ```
@@ -98,7 +99,10 @@ Tyama/
 *_plan.md
 *_learn.md
 *_log.md
+**/memory*.md
+# старі трекери до міграції
 **/mastery*.md
+*_roadmap*.html
 retro/
 **/anki/
 
