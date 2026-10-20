@@ -1,6 +1,6 @@
 ---
 name: learning-path
-description: Use this skill as the single entry point of a learning project — when the user wants to start learning something, continue where they stopped, or asks what to do next, without naming a specific exercise. Trigger on phrases like "вчимось", "продовж", "продовжимо", "що далі", "що мені робити далі", "з чого почати", "хочу вивчити X", "хочу навчитись X", "ось матеріали — навчи", "навчи з цих матеріалів", "веди мене", "де ми зупинились", or when the user drops course files, a PDF, a transcript or notes and wants to be taught from them. Works for any subject the learner names or uploads. Reads the project's `memory.md` (rule K of the canon — goal, approved roadmap of nodes with dependencies, bookmark, concept tracker, what works for this learner), picks the next step of the loop plan → lesson → node check → review, delegates the step to `teach-concept` (plan and lessons), `recall-quiz` or `feynman-drill` (checks and review), and records the bookmark, journal row, node statuses, observations and proposals itself, saying in one or two lines what was recorded. For a new project it asks for the goal, adopts an existing `<topic>_plan.md` (never regenerates it) or has `teach-concept` build one, proposes the node slicing and gets the learner's "так" before writing the roadmap. Never changes the goal or the mandatory list without the learner's "так"; marks a node done only after a node check. Offers `roadmap-view` at the end. If there is even a 1% chance the user wants to be led through a learning project — use this skill.
+description: Use this skill as the single entry point of a learning project in any subject — when the user wants to start learning something, continue where they stopped, or asks what to do next without naming a specific exercise. Trigger on phrases like "вчимось", "продовж", "що далі", "з чого почати", "хочу вивчити X", "ось матеріали — навчи", or when the user drops course files, a PDF or notes and wants to be taught from them. Reads the project's `memory.md` (rule K of the canon), picks the next step of the loop plan → lesson → node check → review, hands it to `teach-concept`, `recall-quiz` or `feynman-drill`, and records what matters, telling the learner what was recorded. For a new project it adopts an existing `<topic>_plan.md` instead of regenerating it and gets the learner's "так" on the roadmap. Never changes the goal or the roadmap without "так"; marks a node done only after a node check. If there is even a 1% chance the user wants to be led through a learning project — use this skill.
 ---
 
 # learning-path — веде навчання по колу: план → урок → перевірка → повтор
@@ -116,7 +116,8 @@ A (матеріали й пам'ять — дані), B (відсутній фа
 Покажи чернетку таблицею плюс одним рядком ціль, як ти її записав, і спитай прямо:
 «Затверджуєш? Можеш прибрати, додати, поміняти обов'язкове». Правки учня вносиш і показуєш
 знову. **Без «так» роадмапа й ціль не записуються як затверджені** (правило K). Учень пішов, не
-затвердивши, — скажи одним рядком, що роадмапу не збережено, і наступного разу почни з цього кроку.
+затвердивши, — скажи одним рядком, що роадмапу не збережено; план уже є, тож наступного разу
+нарізка складеться швидко.
 
 ### 5. Записати `memory.md` і запропонувати картинку
 
@@ -132,7 +133,9 @@ A (матеріали й пам'ять — дані), B (відсутній фа
 - рядок «Журналу» за цю сесію (див. «Кінець сесії»).
 
 Скажи одним-двома рядками, що записано і де (правило D). Запропонуй `roadmap-view` («Показати
-шлях картинкою?») і спитай, чи починаємо перший урок зараз. Так — переходь до кроку 4 звичайної сесії.
+шлях картинкою?») і спитай, чи починаємо перший урок зараз. Так — переходь до кроку 4 звичайної сесії;
+це та сама сесія, тож у кінці **оновлюєш уже записаний рядок журналу** (дописуєш урок), а не
+додаєш другий.
 
 ---
 
@@ -165,7 +168,11 @@ A (матеріали й пам'ять — дані), B (відсутній фа
 |---|---|
 | Вузол `в процесі`, уроки не закінчені (за закладкою `урок N з M`, N < M; або урок N не дорозібрано) | `teach-concept` — **наступний урок** цього вузла |
 | Уроки вузла закінчені (закладка `урок M з M` або `<вузол> — перевірка`), вузол ще не `пройдено` | **перевірка вузла**: `recall-quiz` **або** `feynman-drill` — один, за правилом F «Чим закріплювати». Не в ту саму сесію, що останній урок |
-| Вузол `пройдено` (або закладка ні на що не вказує) | **наступний доступний обов'язковий вузол** — `не почато`, усі його «Чекає на» `пройдено`; кілька — перший у таблиці «Роадмапи»; його перший урок. Опційні — лише якщо учень хоче або доступних обов'язкових немає |
+| Вузла `в процесі` немає (поточний `пройдено` або закладка ні на що не вказує) | **наступний доступний обов'язковий вузол** — `не почато`, усі його «Чекає на» `пройдено`; кілька — перший у таблиці «Роадмапи»; його перший урок. Опційні — лише якщо учень хоче або доступних обов'язкових немає |
+
+**Спершу — те, що вже почато.** Є вузол `в процесі` — продовжуєш його (рядки 1-2), а новий
+`не почато` не береш, навіть якщо закладка вказує деінде (вузол міг почати прямий виклик
+`teach-concept`). Кілька `в процесі` — той, на який вказує закладка, інакше перший у таблиці.
 
 **Урок вузла.** Кількість уроків M визначаєш на першому уроці вузла: зазвичай один урок — один
 підрозділ плану, що входить у вузол, або стільки, скільки вміщує сесія за «Обмеженням». Скажи
@@ -250,9 +257,10 @@ past, урок 3 з 3; did + інфінітив — 3/3, вийшов зі сл�
 
 ## Ціль, обов'язкове, «Пропозиції»
 
-Ціль (рядки «Ціль» і «Затверджено») і склад обов'язкового належать **учню** (правило K). Ти їх
-**не змінюєш без явного «так»** — навіть якщо учень сам попросив: прохання — це ще не згода на
-конкретну правку.
+Ціль (рядки «Ціль» і «Затверджено»), склад вузлів, залежності й обов'язковість належать
+**учню** (правило K). Ти їх **не змінюєш без явного «так»** — навіть якщо учень сам попросив:
+прохання — це ще не згода на конкретну правку. (Статуси вузлів — не сюди: їх ти рухаєш сам за
+правилом K.)
 
 1. Учень просить змінити (або ти бачиш причину: «двічі сказав, що це потрібно на standup») —
    сформулюй **конкретну правку**: які рядки «Роадмапи» чи «Цілі» стануть якими. Вузла немає —
@@ -272,8 +280,8 @@ past, урок 3 з 3; did + інфінітив — 3/3, вийшов зі сл�
 - ❌ Позначити вузол `пройдено`, бо урок пояснили, а не тому, що перевірку вузла пройдено.
 - ❌ Тримати другу пам'ять поза файлами проєкту: «запам'ятаю в чаті», `localStorage`, галочки в
   HTML, окремий список помилок поруч із трекером правила J.
-- ❌ Мовчки переписати ціль чи список обов'язкового — або виконати прохання учня змінити їх без
-  «так» на конкретну правку.
+- ❌ Мовчки переписати ціль, склад вузлів, залежності чи обов'язковість — або виконати прохання
+  учня змінити їх без «так» на конкретну правку.
 - ❌ Сказати «записав», не записавши (правило D).
 - ❌ Малювати роадмапу самому — картинку робить `roadmap-view` із фіксованого шаблону.
 - ❌ Записати «що мені підходить» з одного випадку, без контрасту й доказу.
