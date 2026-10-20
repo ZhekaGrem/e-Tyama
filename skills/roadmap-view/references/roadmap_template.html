@@ -10,7 +10,7 @@
 <style>
 :root{
   --bg:#EDF0F3; --surface:#F6F8FA; --raised:#FCFDFE;
-  --ink:#18202B; --ink-2:rgba(24,32,43,.74); --ink-3:rgba(24,32,43,.60);
+  --ink:#18202B; --ink-2:rgba(24,32,43,.74); --ink-3:rgba(24,32,43,.66);
   --line:rgba(24,32,43,.12); --rail:rgba(24,32,43,.18); --rail-opt:rgba(24,32,43,.42);
   --accent:#1F6F5C; --accent-soft:rgba(31,111,92,.14); --accent-ink:#F1FAF7;
   --lock:#DCE1E6;
@@ -487,7 +487,7 @@ function layoutRoadmap(data, opts) {
     });
   });
   sinks.forEach(function (p) {
-    edges.push({ from: p.id, to: goal.id, kind: 'mandatory', done: p.state === 'done', p: p, c: goal });
+    edges.push({ from: p.id, to: goal.id, kind: 'mandatory', done: p.state === 'done' && goal.state === 'done', p: p, c: goal });
   });
   edges.forEach(function (e) { if (e.kind === 'mandatory') e.segs = railSegs(e.p, e.c); });
 

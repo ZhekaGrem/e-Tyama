@@ -141,6 +141,36 @@ test('counter counts mandatory steps only, the goal excluded', () => {
   assert.deepEqual(pick(countMandatory(empty), ['total', 'done']), { total: 0, done: 0 });
 });
 
+test('light --ink-3 keeps 4.5:1 contrast on every light surface', () => {
+  const root = template.match(/:root\{([\s\S]*?)\}/)[1];
+  const tok = (name) => root.match(new RegExp(`--${name}:([^;]+);`))[1].trim();
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const [r, g, b, a] = tok('ink-3').match(/rgba\(([^)]+)\)/)[1].split(',').map(Number);
+  const lum = (c) => {
+    const [R, G, B] = c.map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; });
+    return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+  };
+  for (const surface of ['bg', 'surface', 'raised']) {
+    const base = hex(tok(surface));
+    const mixed = [r, g, b].map((v, i) => v * a + base[i] * (1 - a));
+    const [hi, lo] = [lum(base), lum(mixed)].sort((x, y) => y - x);
+    const ratio = (hi + 0.05) / (lo + 0.05);
+    assert.ok(ratio >= 4.5, `--ink-3 on --${surface} is ${ratio.toFixed(2)}:1`);
+  }
+});
+
+test('rails into the goal turn accent only when the goal itself is reached', () => {
+  const node = (id, status, depends = []) => ({ id, title: id, status, mandatory: true, depends, meta: '', weak_count: 0 });
+  const half = layoutRoadmap({ goal_title: 'Ціль', nodes: [node('a', 'пройдено'), node('b', 'не почато')] });
+  const halfGoal = half.nodes.find((n) => n.isGoal);
+  assert.equal(edge(half, 'a', halfGoal.id).done, false);
+  const full = layoutRoadmap({ goal_title: 'Ціль', nodes: [node('a', 'пройдено'), node('b', 'пройдено')] });
+  const fullGoal = full.nodes.find((n) => n.isGoal);
+  assert.equal(fullGoal.state, 'done');
+  assert.equal(edge(full, 'a', fullGoal.id).done, true);
+  assert.equal(edge(full, 'b', fullGoal.id).done, true);
+});
+
 test('repeat dates read relative to the update day', () => {
   assert.equal(dueText('2026-10-20', '2026-10-20'), 'повтор сьогодні');
   assert.equal(dueText('2026-10-21', '2026-10-20'), 'повтор завтра, 21 жовтня');
