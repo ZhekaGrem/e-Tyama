@@ -21,6 +21,7 @@
 │   ├── <тема>.html               # необов'язково: візуальна версія
 │   ├── quiz_log.md               # recall-quiz
 │   ├── feynman_log.md            # feynman-drill
+│   ├── practice_log.md           # skill-practice: рубрика і спроби навички
 │   ├── <тема>_roadmap.html       # roadmap-view
 │   ├── memory.md                 # пам'ять проєкту: правило K (ціль, роадмапа, концепти…)
 │   ├── build_log.md              # build-project-drill
