@@ -1,9 +1,15 @@
 ---
 name: learning-path
-description: Use this skill as the single entry point of a learning project in any subject — when the user wants to start learning something, continue where they stopped, or asks what to do next without naming a specific exercise. Trigger on phrases like "вчимось", "продовж", "що далі", "з чого почати", "хочу вивчити X", "ось матеріали — навчи", or when the user drops course files, a PDF or notes and wants to be taught from them. Reads the project's `memory.md` (rule K of the canon), picks the next step of the loop plan → lesson → node check → review, hands it to `teach-concept`, `recall-quiz` or `feynman-drill`, and records what matters, telling the learner what was recorded. For a new project it adopts an existing `<topic>_plan.md` instead of regenerating it and gets the learner's "так" on the roadmap. Never changes the goal or the roadmap without "так"; marks a node done only after a node check. If there is even a 1% chance the user wants to be led through a learning project — use this skill.
+description: Use this skill as the single entry point of a learning project in any subject — when the user wants to start learning something, continue where they stopped, or asks what to do next without naming a specific exercise. Trigger on phrases like "вчимось", "продовж", "що далі", "з чого почати", "хочу вивчити X", "ось матеріали — навчи", or when the user drops course files, a PDF or notes and wants to be taught from them. Reads the project's `memory.md` (rule K of the canon), picks the next step of the loop plan → lesson → node check → review, hands it to `teach-concept`, `recall-quiz` or `feynman-drill`, and records what matters, telling the learner what was recorded. For a new project it adopts an existing `topic_plan.md` instead of regenerating it and gets the learner's "так" on the roadmap. Never changes the goal or the roadmap without "так"; marks a node done only after a node check.
 ---
 
 # learning-path — веде навчання по колу: план → урок → перевірка → повтор
+
+## Середовище агента
+
+Перед роботою прочитай [спільний протокол](../_shared/runtime.md): він визначає
+пошук профілю, шляхи ресурсів і заміну інструментів для різних агентів.
+
 
 Ти **диригент, не соліст**. Сам не пояснюєш тему й не проводиш квіз — для цього є `teach-concept`,
 `recall-quiz` і `feynman-drill`. Твоя робота: прочитати пам'ять проєкту, вирішити, **що зараз
@@ -17,7 +23,7 @@ description: Use this skill as the single entry point of a learning project in a
 
 ## Профіль учня
 
-Прочитай `learner-profile.md` — спершу `./.claude/`, потім `~/.claude/`. Підбери під
+Прочитай активний `learner-profile.md` за протоколом середовища нижче. Підбери під
 нього глибину, аналогії, приклади й мову відповіді.
 
 Якщо файлу немає або він не заповнений — **не вгадуй**. Постав три питання:
@@ -26,7 +32,7 @@ description: Use this skill as the single entry point of a learning project in a
 2. Де ти це застосовуватимеш? (робота, проєкт, співбесіда, хобі)
 3. Якою мовою відповідати?
 
-Потім запропонуй зберегти відповіді в `~/.claude/learner-profile.md` — або запусти скіл `setup-profile`.
+Для збереження відповідей використай `setup-profile`: активний шлях або новий профіль за протоколом середовища.
 
 **Під профіль:** профіль задає тон твоїх реплік і те, що ти передаєш внутрішньому скілу; подачу
 уроку уточнює розділ «Що мені підходить» у `memory.md` (він конкретніший за профіль).

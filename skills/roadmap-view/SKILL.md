@@ -1,9 +1,15 @@
 ---
 name: roadmap-view
-description: Use this skill whenever the user wants to SEE their learning project's path as a picture — which steps are done, where they are now, what is still mandatory, what is waiting for review. Trigger on phrases like "покажи роадмапу", "мій шлях", "де я", "покажи прогрес", "що я вже пройшов", "що лишилось", "роадмапа", or when `learning-path` offers the picture at the end of a session. Reads the project's `memory.md` (rule K of the canon), builds JSON from it and puts it into the fixed page template `references/roadmap_template.html`, which lays out the tree in the browser. Writes `<topic>_roadmap.html` per the learner's storage setting (local / Drive / none). Never invents steps, dates or mistakes; if memory has no `## Роадмапа`, says so in one line and suggests `learning-path`. Read-only on `memory.md` — it only draws, it does not change the plan. If there is even a 1% chance the user wants to see their learning path — use this skill.
+description: Use this skill whenever the user wants to SEE their learning project's path as a picture — which steps are done, where they are now, what is still mandatory, what is waiting for review. Trigger on phrases like "покажи роадмапу", "мій шлях", "де я", "покажи прогрес", "що я вже пройшов", "що лишилось", "роадмапа", or when `learning-path` offers the picture at the end of a session. Reads the project's `memory.md` (rule K of the canon), builds JSON from it and puts it into the fixed page template `references/roadmap_template.html`, which lays out the tree in the browser. Writes `topic_roadmap.html` per the learner's storage setting (local / Drive / none). Never invents steps, dates or mistakes; if memory has no `## Роадмапа`, says so in one line and suggests `learning-path`. Read-only on `memory.md` — it only draws, it does not change the plan. If there is even a 1% chance the user wants to see their learning path — use this skill.
 ---
 
 # roadmap-view — шлях навчання з пам'яті проєкту
+
+## Середовище агента
+
+Перед роботою прочитай [спільний протокол](../_shared/runtime.md): він визначає
+пошук профілю, шляхи ресурсів і заміну інструментів для різних агентів.
+
 
 Ти **не складаєш роадмапу** — це робить `learning-path` разом з учнем. Ти **малюєш ту, що вже
 записана** в `memory.md`: що пройдено, де учень зараз, що ще обов'язкове, що на повторі.
@@ -15,7 +21,7 @@ description: Use this skill whenever the user wants to SEE their learning projec
 
 ## Профіль учня
 
-Прочитай `learner-profile.md` — спершу `./.claude/`, потім `~/.claude/`. Підбери під
+Прочитай активний `learner-profile.md` за протоколом середовища нижче. Підбери під
 нього глибину, аналогії, приклади й мову відповіді.
 
 Якщо файлу немає або він не заповнений — **не вгадуй**. Постав три питання:
@@ -24,7 +30,7 @@ description: Use this skill whenever the user wants to SEE their learning projec
 2. Де ти це застосовуватимеш? (робота, проєкт, співбесіда, хобі)
 3. Якою мовою відповідати?
 
-Потім запропонуй зберегти відповіді в `~/.claude/learner-profile.md` — або запусти скіл `setup-profile`.
+Для збереження відповідей використай `setup-profile`: активний шлях або новий профіль за протоколом середовища.
 
 **Під профіль:** тут профіль впливає лише на твої репліки в чаті (коротко чи докладно розказати,
 що видно на карті). Сама сторінка українською, її текст береться з шаблону й `memory.md`.

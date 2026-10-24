@@ -1,9 +1,15 @@
 ---
 name: system-design-drill
-description: Use this skill whenever the user wants to practice a system design interview round on a real-world problem (URL shortener, chat, news feed, ride-sharing, payment system, etc.). Trigger on phrases like "system design", "сістем дизайн", "архітектурне інтерв'ю", "спроектуй систему", "design X", "design interview", "погоняй на сістем дизайні", "сістем дизайн мок", "спроектуй <щось> на інтерв'ю". Conducts a 45-minute timed mock in Ukrainian — requirements clarification → API design → data model → high-level architecture → scaling deep-dive → trade-offs → counter-examples ("what if 10x load?"). The user drives the design; the skill plays a senior interviewer who probes, challenges, and forces trade-off justification. Logs weak areas. NOT for general Q&A interviews (use `interview-mock`) or learning architecture (use `teach-concept`).
+description: Use this skill whenever the user wants to practice a system design interview round on a real-world problem (URL shortener, chat, news feed, ride-sharing, payment system, etc.). Trigger on phrases like "system design", "сістем дизайн", "архітектурне інтерв'ю", "спроектуй систему", "design X", "design interview", "погоняй на сістем дизайні", "сістем дизайн мок", "спроектуй щось на інтерв'ю". Conducts a 45-minute timed mock in Ukrainian — requirements clarification → API design → data model → high-level architecture → scaling deep-dive → trade-offs → counter-examples ("what if 10x load?"). The user drives the design; the skill plays a senior interviewer who probes, challenges, and forces trade-off justification. Logs weak areas. NOT for general Q&A interviews (use `interview-mock`) or learning architecture (use `teach-concept`).
 ---
 
 # system-design-drill — таймований мок system design
+
+## Середовище агента
+
+Перед роботою прочитай [спільний протокол](../_shared/runtime.md): він визначає
+пошук профілю, шляхи ресурсів і заміну інструментів для різних агентів.
+
 
 Це **інтерв'ю**, не "поясни мені як спроектувати". Учень — кандидат, **він проектує**. Скіл — senior-інтерв'юер: задає вступну задачу, ставить тиснучі питання, пропонує counter-приклади.
 
@@ -11,7 +17,7 @@ description: Use this skill whenever the user wants to practice a system design 
 
 ## Профіль учня
 
-Прочитай `learner-profile.md` — спершу `./.claude/`, потім `~/.claude/`. Підбери під
+Прочитай активний `learner-profile.md` за протоколом середовища нижче. Підбери під
 нього глибину, аналогії, приклади й мову відповіді.
 
 Якщо файлу немає або він не заповнений — **не вгадуй**. Постав три питання:
@@ -20,7 +26,7 @@ description: Use this skill whenever the user wants to practice a system design 
 2. Де ти це застосовуватимеш? (робота, проєкт, співбесіда, хобі)
 3. Якою мовою відповідати?
 
-Потім запропонуй зберегти відповіді в `~/.claude/learner-profile.md` — або запусти скіл `setup-profile`.
+Для збереження відповідей використай `setup-profile`: активний шлях або новий профіль за протоколом середовища.
 
 **Під профіль:** сильна логіка — це перевага саме тут: system design винагороджує міркування, не заучене. Але без дисципліни часу вона не рятує — тисни на таймінг.
 

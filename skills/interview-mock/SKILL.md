@@ -1,9 +1,15 @@
 ---
 name: interview-mock
-description: Use this skill whenever the user wants to simulate a technical job interview on a specific tech stack covered in `interview/<tech>/` of this ai-teacher project. Trigger on phrases like "мок інтерв'ю", "проведи співбесіду", "імітуй інтерв'ю", "погоняй на співбесіді", "мок-інтерв'ю по X", "інтерв'ю на middle/senior", "погоняй питаннями зі співбесіди", "проведи технічне інтерв'ю", "симуляція інтерв'ю". Conducts a realistic mock interview in Ukrainian with random questions from the `interview/<tech>/` folder, follow-ups, scoring rubric, and a failure-log so weak areas can be re-drilled later. NOT for general recall (use `recall-quiz`) or design rounds (use `system-design-drill`). Use specifically for Q&A-style technical interview rehearsal.
+description: Use this skill whenever the user wants to simulate a technical job interview on a specific tech stack covered in `interview/tech/` of this ai-teacher project. Trigger on phrases like "мок інтерв'ю", "проведи співбесіду", "імітуй інтерв'ю", "погоняй на співбесіді", "мок-інтерв'ю по X", "інтерв'ю на middle/senior", "погоняй питаннями зі співбесіди", "проведи технічне інтерв'ю", "симуляція інтерв'ю". Conducts a realistic mock interview in Ukrainian with random questions from the `interview/tech/` folder, follow-ups, scoring rubric, and a failure-log so weak areas can be re-drilled later. NOT for general recall (use `recall-quiz`) or design rounds (use `system-design-drill`). Use specifically for Q&A-style technical interview rehearsal.
 ---
 
 # interview-mock — реалістичний мок технічного інтерв'ю
+
+## Середовище агента
+
+Перед роботою прочитай [спільний протокол](../_shared/runtime.md): він визначає
+пошук профілю, шляхи ресурсів і заміну інструментів для різних агентів.
+
 
 Це **симуляція інтерв'ю**, не лекція. Учень — кандидат. Скіл — інтерв'юер: ставить питання, чекає відповідь, ставить follow-up, оцінює, рухається далі.
 
@@ -11,7 +17,7 @@ description: Use this skill whenever the user wants to simulate a technical job 
 
 ## Профіль учня
 
-Прочитай `learner-profile.md` — спершу `./.claude/`, потім `~/.claude/`. Підбери під
+Прочитай активний `learner-profile.md` за протоколом середовища нижче. Підбери під
 нього глибину, аналогії, приклади й мову відповіді.
 
 Якщо файлу немає або він не заповнений — **не вгадуй**. Постав три питання:
@@ -20,7 +26,7 @@ description: Use this skill whenever the user wants to simulate a technical job 
 2. Де ти це застосовуватимеш? (робота, проєкт, співбесіда, хобі)
 3. Якою мовою відповідати?
 
-Потім запропонуй зберегти відповіді в `~/.claude/learner-profile.md` — або запусти скіл `setup-profile`.
+Для збереження відповідей використай `setup-profile`: активний шлях або новий профіль за протоколом середовища.
 
 **Під профіль:** якщо логіка сильніша за пам'ять — більше follow-up «чому», щоб учень витягнув з логіки те, що забув з пам'яті. Це й є реалістично: інтерв'юери так і роблять.
 

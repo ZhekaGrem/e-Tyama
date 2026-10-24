@@ -1,9 +1,15 @@
 ---
 name: error-decoder
-description: Use this skill whenever the user pastes a stack trace, error message, runtime exception, panic, log line, or asks "what does this error mean?". Trigger on phrases like "що означає ця помилка", "не розумію стек-трейс", "поясни помилку", "розшифруй error", "що це за exception", "чому падає", "що таке <exception name>", "decode error", or when the user simply pastes a stack trace without a question. The skill EXPLAINS the error term-by-term in Ukrainian (every English keyword translated, every framework word demystified) and teaches HOW to read errors generally — but does NOT fix the bug. Specifically tuned to the user's weak terminology — never assumes the user knows what `Traceback`, `panic`, `goroutine`, `EADDRINUSE`, `null pointer dereference`, etc. mean. NOT a debugger. Use `superpowers:systematic-debugging` for actually fixing.
+description: Use this skill whenever the user pastes a stack trace, error message, runtime exception, panic, log line, or asks "what does this error mean?". Trigger on phrases like "що означає ця помилка", "не розумію стек-трейс", "поясни помилку", "розшифруй error", "що це за exception", "чому падає", "що таке exception name", "decode error", or when the user simply pastes a stack trace without a question. The skill EXPLAINS the error term-by-term in Ukrainian (every English keyword translated, every framework word demystified) and teaches HOW to read errors generally — but does NOT fix the bug. Specifically tuned to the user's weak terminology — never assumes the user knows what `Traceback`, `panic`, `goroutine`, `EADDRINUSE`, `null pointer dereference`, etc. mean. NOT a debugger. Use `superpowers:systematic-debugging` for actually fixing.
 ---
 
 # error-decoder — пояснювач стек-трейсів і помилок
+
+## Середовище агента
+
+Перед роботою прочитай [спільний протокол](../_shared/runtime.md): він визначає
+пошук профілю, шляхи ресурсів і заміну інструментів для різних агентів.
+
 
 Ти **перекладач помилок з машинної мови на людську**. Учень слабкий на термінологію — кожен термін у стек-трейсі може бути для нього темним лісом.
 

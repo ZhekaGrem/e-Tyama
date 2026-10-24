@@ -1,9 +1,15 @@
 ---
 name: setup-profile
-description: Use this skill to create or update the learner profile that every other Tyama skill reads. Trigger on phrases like "налаштуй профіль", "setup profile", "постав профіль", "онови профіль", "зміни профіль навчання", "хочу змінити мову відповіді", "перший запуск", "з чого почати", "install", "як почати користуватись", or whenever another skill reports that `learner-profile.md` is missing or empty. Runs a short interview (strengths, weaknesses, work context, goal, reading environment, language) and writes `~/.claude/learner-profile.md`. Keep it under ten questions — this is onboarding, not an exam. NOT for teaching a topic (use `teach-concept`) and not for retrospectives (`learning-retro`).
+description: Use this skill to create or update the learner profile that every other Tyama skill reads. Trigger on phrases like "налаштуй профіль", "setup profile", "постав профіль", "онови профіль", "зміни профіль навчання", "хочу змінити мову відповіді", "перший запуск", "з чого почати", "install", "як почати користуватись", or whenever another skill reports that `learner-profile.md` is missing or empty. Runs a short interview (strengths, weaknesses, work context, goal, reading environment, language) and writes the active profile or a new agent-neutral `~/.tyama/learner-profile.md`. Keep it under ten questions — this is onboarding, not an exam. NOT for teaching a topic (use `teach-concept`) and not for retrospectives (`learning-retro`).
 ---
 
 # setup-profile — один раз налаштувати, далі скіли підлаштуються самі
+
+## Середовище агента
+
+Перед роботою прочитай [спільний протокол](../_shared/runtime.md): він визначає
+пошук профілю, шляхи ресурсів і заміну інструментів для різних агентів.
+
 
 Ти проводиш **коротке інтерв'ю**, а не анкетування. Мета — щоб решта скілів Tyama знали,
 кого вони вчать: що людині дається важко, де вона це застосує, якою мовою відповідати.
@@ -17,12 +23,7 @@ description: Use this skill to create or update the learner profile that every o
 
 ## Крок 1 — з'ясуй, чи профіль уже є
 
-Шукай у цьому порядку:
-
-```
-./.claude/learner-profile.md      <- перекриття під конкретний проєкт
-~/.claude/learner-profile.md      <- глобальний
-```
+Визнач активний профіль за [протоколом середовища](../_shared/runtime.md). Він зберігає сумісність зі старими шляхами та визначає пріоритет проєктного профілю.
 
 | Знайшов | Що робиш |
 |---|---|
@@ -81,11 +82,7 @@ description: Use this skill to create or update the learner profile that every o
 
 ## Крок 3 — запиши файл
 
-За замовчуванням — `~/.claude/learner-profile.md`. Він **поза плагіном** навмисно:
-оновлення плагіна перезаписує свою теку, і профіль усередині неї було б затерто.
-
-Проєктний `./.claude/learner-profile.md` роби тільки якщо людина явно каже, що для цього
-проєкту потрібен інший профіль (наприклад, тут вона вчиться англійською, а взагалі — ні).
+Оновлюй активний профіль на місці. Якщо профілю ще немає, типовий шлях — `~/.tyama/learner-profile.md`; для явно обраного проєктного профілю — `./.tyama/learner-profile.md`. Не зберігай профіль у теці встановленого плагіна. Без доступу до запису віддай текст для копіювання за протоколом середовища, не повідомляй про успішне збереження.
 
 Формат — дев'ять слотів. Порожні лишай як `<?>`, не вигадуй за людину:
 
@@ -134,7 +131,7 @@ description: Use this skill to create or update the learner profile that every o
 
 Перед тим як казати «готово»:
 
-1. Файл існує за очікуваним шляхом і не порожній?
+1. Файл існує за активним шляхом і не порожній? Якщо запис недоступний — вміст віддано для копіювання й прямо сказано, що його не збережено?
 2. П'ять обов'язкових полів заповнені (сильні/слабкі, контекст, мова, середовище, сховище)?
 3. Незаповнені слоти лишились як `<?>`, а не вигадані?
 4. Вміст показано людині **до** запису і підтверджено?

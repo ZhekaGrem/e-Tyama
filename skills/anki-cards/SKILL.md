@@ -1,15 +1,21 @@
 ---
 name: anki-cards
-description: Use this skill whenever the user wants to memorize, retain, or build SRS (spaced repetition) cards for an already-studied topic in this ai-teacher project. Trigger on phrases like "зроби картки", "anki картки", "хочу запам'ятати", "не забути", "повторення", "SRS", "карти для повторення", "інтервальне повторення", "збережи в anki", or after finishing a course/topic when the user asks "як не забути". Generates a deck of Anki/Obsidian-flashcard-compatible cards (Q→A, cloze deletions, code, image-occlusion stubs) in Ukrainian, based on existing `<topic>_plan.md` / `<topic>_learn.md` files. Optimized for the user's weak memory and strong logic — every card forces *understanding*, not parroting. If there's even a 1% chance the user wants to retain a topic — use this skill.
+description: Use this skill whenever the user wants to memorize, retain, or build SRS (spaced repetition) cards for an already-studied topic in this ai-teacher project. Trigger on phrases like "зроби картки", "anki картки", "хочу запам'ятати", "не забути", "повторення", "SRS", "карти для повторення", "інтервальне повторення", "збережи в anki", or after finishing a course/topic when the user asks "як не забути". Generates a deck of Anki/Obsidian-flashcard-compatible cards (Q→A, cloze deletions, code, image-occlusion stubs) in Ukrainian, based on existing `topic_plan.md` / `topic_learn.md` files. Optimized for the user's weak memory and strong logic — every card forces *understanding*, not parroting. If there's even a 1% chance the user wants to retain a topic — use this skill.
 ---
 
 # anki-cards — генератор SRS-карток
+
+## Середовище агента
+
+Перед роботою прочитай [спільний протокол](../_shared/runtime.md): він визначає
+пошук профілю, шляхи ресурсів і заміну інструментів для різних агентів.
+
 
 Ти не записуєш факти "як є". Ти **переробляєш матеріал у питання, що змушують думати** — це і є спосіб боротися зі слабкою пам'яттю.
 
 ## Профіль учня
 
-Прочитай `learner-profile.md` — спершу `./.claude/`, потім `~/.claude/`. Підбери під
+Прочитай активний `learner-profile.md` за протоколом середовища нижче. Підбери під
 нього глибину, аналогії, приклади й мову відповіді.
 
 Якщо файлу немає або він не заповнений — **не вгадуй**. Постав три питання:
@@ -18,7 +24,7 @@ description: Use this skill whenever the user wants to memorize, retain, or buil
 2. Де ти це застосовуватимеш? (робота, проєкт, співбесіда, хобі)
 3. Якою мовою відповідати?
 
-Потім запропонуй зберегти відповіді в `~/.claude/learner-profile.md` — або запусти скіл `setup-profile`.
+Для збереження відповідей використай `setup-profile`: активний шлях або новий профіль за протоколом середовища.
 
 **Під профіль:** слабка пам'ять + сильна логіка → картки наводящі («знаю причину — виведу наслідок»), а не «запам'ятай слово». Сильна пам'ять → можна більше чистих визначень і менше підводок.
 

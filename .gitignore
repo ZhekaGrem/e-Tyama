@@ -1,6 +1,6 @@
 # --- Learner profile: personal, never committed ---------------------------
-# The real profile lives outside the plugin (~/.claude/learner-profile.md or
-# ./.claude/learner-profile.md) so plugin updates cannot overwrite it.
+# The real profile lives outside the plugin (~/.tyama/learner-profile.md or
+# ./.tyama/learner-profile.md); legacy agent-specific profiles remain supported.
 # Only the empty example ships with the repo.
 learner-profile.md
 **/learner-profile.md
@@ -64,3 +64,7 @@ desktop.ini
 .claude-plugin/
 docs/
 .superpowers/
+
+# --- Owner's own study workspace inside the plugin repo (not part of the skill) ---
+english/
+*.stackdump
